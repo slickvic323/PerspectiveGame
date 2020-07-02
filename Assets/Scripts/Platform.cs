@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class Platform : MonoBehaviour
 {
+
+    private int MAX_NUM_BOUNCES = 6;
+
+    private int numBouncesRemaining = 6; // Really are 5 bounces total, but subtracts right off the first bounce
+
     private bool tapped;
 
     private bool litUp;
@@ -38,12 +43,21 @@ public class Platform : MonoBehaviour
         
     }
 
+    public int GetNumBouncesRemaining ()
+    {
+        return numBouncesRemaining;
+    }
+
+    public void SubtractOneBounce()
+    {
+        numBouncesRemaining--;
+    }
+
     public void CreateGameObject()
     {
         gameObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
         gameObject.transform.localScale = new Vector3(0.7f, 0.1f, 0.7f);
         gameObject.GetComponent<Renderer>().material.color = Color.black;
-
     }
 
     public GameObject GetGameObject()
@@ -102,10 +116,10 @@ public class Platform : MonoBehaviour
         return ballOnPlatform;
     }
 
-    public void SetBallOnPlatform(bool ballOnPlatform)
+    public void SetBallOnPlatform(bool ballOnPlatform, bool ballLandingOnWrongPlatform)
     {
         this.ballOnPlatform = ballOnPlatform;
-        if (ballOnPlatform)
+        if (ballOnPlatform && !ballLandingOnWrongPlatform)
         {
             gameObject.GetComponent<Renderer>().material.color = Color.green;
         }

@@ -1,9 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using TMPro;
 
 public class EntirePlane : MonoBehaviour
 {
+
+    //private static GameManager myGameManager;
+
     private int numberPlatformsX;
 
     private int numberPlatformsZ;
@@ -17,6 +22,8 @@ public class EntirePlane : MonoBehaviour
     private bool ballExists = false;
 
     float beforeAngle, smallerAngle, biggerAngle;
+
+    ArrowHandler arrowHandler;
 
     private float lastYVelocity = 0f;
 
@@ -70,24 +77,65 @@ public class EntirePlane : MonoBehaviour
 
     // Aerial view of platform grid
 
+    GameObject myCanvas;
+    GameObject levelCompleteUI;
+    GameObject levelFailUI;
+    GameObject bouncesLeftUI;
+    GameObject pointScoreUI;
+    Text levelCompleteText;
+    Text levelFailText;
+    TextMeshProUGUI numBouncesLeftText;
+    Text pointsText;
 
+    private bool ballWillLandOnFinalPlatform;
 
     // Start is called before the first frame update
     void Start()
     {
+        if (GameManager.GetMode() == GameManager.Mode.new_game_setup)
+        {
+            GameManager.StartNewGame();
+        }
+        else
+        {
+            GameManager.StartNewLevel();
+        }
+
         mainCamera = Camera.main;
         cameraInfo = new CameraInfo();
         aerialView = true;
         cameraInfo.SetDirectionFacing(CameraInfo.FACING_POS_Z);
         cameraInfo.SetMode(CameraInfo.STAGNANT);
 
-        mySwipeDetector = new SwipeDetector();
+        arrowHandler = new ArrowHandler();
+        arrowHandler.SetUpArrows();
+        mySwipeDetector = new SwipeDetector(arrowHandler);
 
         movementUI = new MovementUI();
         movementUI.InitializeMovementUI();
 
-        numberPlatformsX = 4;
-        numberPlatformsZ = 4;
+        myCanvas = GameObject.FindWithTag("InGameCanvas");
+        if (myCanvas != null)
+        {
+            levelCompleteUI = GameObject.FindWithTag("LevelComplete");
+            levelCompleteUI.SetActive(false);
+            levelCompleteText = levelCompleteUI.GetComponentInChildren<Text>();
+
+            levelFailUI = GameObject.FindWithTag("LevelFail");
+            levelFailUI.SetActive(false);
+            levelFailText = levelFailUI.GetComponentInChildren<Text>();
+
+            bouncesLeftUI = GameObject.FindWithTag("BouncesLeftUI");
+            numBouncesLeftText = bouncesLeftUI.GetComponentInChildren<TextMeshProUGUI>();
+
+            pointScoreUI = GameObject.Find("PointScoreUI");
+            pointsText = pointScoreUI.GetComponentInChildren<Text>();
+            pointsText.text = GameManager.GetCurrentNumPoints().ToString() + " pts";
+        }
+
+
+        numberPlatformsX = GameManager.GetNumXPlatforms();
+        numberPlatformsZ = GameManager.GetNumZPlatforms();
         PLATFORM_GRID_X_DISTANCE = numberPlatformsX + 0.7f; //TODO replace with X Dimension Value of platform
         PLATFORM_GRID_Z_DISTANCE = numberPlatformsZ + 0.7f; //TODO replace with Z Dimension Value of platform
         ballOnNewPlatform = true;
@@ -104,6 +152,7 @@ public class EntirePlane : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        mySwipeDetector.Update();
         if (ballExists)
         {
             ProperBounce();
@@ -163,14 +212,28 @@ public class EntirePlane : MonoBehaviour
 
         if (firstBounceYet && lastYVelocity < 0 && ball.GetRigidbody().velocity.y > 0)
         {
-            Debug.Log("Bounce: " + ball.GetRigidbody().velocity.y);
+            // Check if there are bounces remaining on this platform
+            if (platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].GetNumBouncesRemaining() > 0)
+            {
+                platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].SubtractOneBounce();
+            }
+
+            //Debug.Log("Bounce: " + ball.GetRigidbody().velocity.y);
+            Debug.Log("Num bounces Left : " + platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].GetNumBouncesRemaining() + "("+ ball.GetWhichPlatfromOnX() + ", " + ball.GetWhichPlatfromOnZ() + ")");
+            numBouncesLeftText.text = platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].GetNumBouncesRemaining().ToString();
+
             ball.GetRigidbody().velocity = new Vector3(ball.GetRigidbody().velocity.x, firstBounceVelocity, ball.GetRigidbody().velocity.z);
 
+            // Check if made incorrect move
             if (ballWillLandOnWrongPlatform)
             {
                 BallMadeWrongMove();
             }
-
+            else if (ballWillLandOnFinalPlatform)
+            {
+                ShowCompletedLevelText();
+            }
+            
             if (changePlatformsOnNextBounce && !changingPlatforms)
             {
                 changePlatformsOnNextBounce = false;
@@ -286,6 +349,11 @@ public class EntirePlane : MonoBehaviour
             {
                 HandleNewPlatformBounce();
                 ballOnNewPlatform = false;
+
+                // Arrows UI. Now that ball landed on new platform, remove the arrows
+                arrowHandler.HideUpArrow();
+                arrowHandler.HideRightArrow();
+                arrowHandler.HideLeftArrow();
             }
         }
         lastYVelocity = ball.GetRigidbody().velocity.y;
@@ -431,9 +499,10 @@ public class EntirePlane : MonoBehaviour
         Platform firstPlatform = patternList[0];
         ball.SetWhichPlatformOn(firstPlatform.GetXIndex(), firstPlatform.GetZIndex());
         ball.CreateGameObject();
-        platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].SetBallOnPlatform(true);
+        platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].SetBallOnPlatform(true, false);
         ballMovingAlongPatternIndex = 1; // Start at 1 because the first move will be to the 1st index in pattern
         ballWillLandOnWrongPlatform = false;
+        ballWillLandOnFinalPlatform = false;
 
         // Begin moving camera from aerial view to the initial position
         cameraStartPositionAerial = mainCamera.transform.position;
@@ -579,6 +648,37 @@ public class EntirePlane : MonoBehaviour
 
     private void OnGUI()
     {
+        if (mySwipeDetector.upSwipe)
+        {
+            if (!changingPlatforms)
+            {
+                changePlatformsOnNextBounce = true;
+                ball.SetDirectionMoving(Ball.MOVING_FORWARD);
+                cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
+            }
+            mySwipeDetector.upSwipe = false;
+        }
+
+        if (mySwipeDetector.leftSwipe)
+        {
+            if (!changingPlatforms)
+            {
+                changePlatformsOnNextBounce = true;
+                ball.SetDirectionMoving(Ball.MOVING_LEFT);
+            }
+            mySwipeDetector.leftSwipe = false;
+        }
+
+        if (mySwipeDetector.rightSwipe)
+        {
+            if (!changingPlatforms)
+            {
+                changePlatformsOnNextBounce = true;
+                ball.SetDirectionMoving(Ball.MOVING_RIGHT);
+            }
+            mySwipeDetector.rightSwipe = false;
+        }
+
         if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
         {
             Debug.Log("Clicked");
@@ -647,16 +747,41 @@ public class EntirePlane : MonoBehaviour
 
 
             ballWillLandOnWrongPlatform = false;
+            // Now that it is established that the CORRECT move was made, we can check if the player made it to the final platform of level
+            CheckIfMadeCorrectFinalMove(currentX, currentZ);
+
+            // Since CORRECT move was made, add points for correct move
+            GameManager.ForwardMove();
+            pointsText.text = GameManager.GetCurrentNumPoints().ToString() + " pts";
         }
+    }
+
+    public void CheckIfMadeCorrectFinalMove(int currentX, int currentZ)
+    {
+        List<Platform> patternList = pattern.GetPattern();
+        // 1. Check if the correct total number of moves were made
+        if (ballMovingAlongPatternIndex == patternList.Count-1)
+        {
+            // 2. Check if the platform the ball is moving to is the final platform
+            Platform correctPlatform = patternList[ballMovingAlongPatternIndex];
+            int correctX = correctPlatform.GetXIndex();
+            int correctZ = correctPlatform.GetZIndex();
+            if (correctX == currentX || correctZ == currentZ)
+            {
+                // The ball is moving correctly to the final platform of the level
+                ballWillLandOnFinalPlatform = true;
+            }
+        }
+
     }
 
     public void HandleNewPlatformBounce()
     {
         // Set New Platform to have ball on platform
-        platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].SetBallOnPlatform(true);
+        platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].SetBallOnPlatform(true, ballWillLandOnWrongPlatform);
 
         // Set previous platform the ball was on to false for ballOnPlatform attribute
-        platforms[ball.GetPreviousPlatformX()][ball.GetPreviousPlatformZ()].SetBallOnPlatform(false);
+        platforms[ball.GetPreviousPlatformX()][ball.GetPreviousPlatformZ()].SetBallOnPlatform(false, ballWillLandOnWrongPlatform);
     }
 
     public void PutCamInAerialView()
@@ -700,6 +825,51 @@ public class EntirePlane : MonoBehaviour
                 platforms[i][j].GetGameObject().GetComponent<Renderer>().material.color = Color.red;
             }
         }
+
+        // Show Fail UI
+        levelFailText.text = "You Made the Wrong Move";
+        levelFailUI.SetActive(true);
+
+        ResetOnFail();
+
+    }
+
+    public void ResetOnFail()
+    {
+        GameManager.numLives--;
+        if (GameManager.numLives > 0)
+        {
+            //ballExists = false;
+            //mainCamera = Camera.main;
+            //cameraInfo = new CameraInfo();
+            //aerialView = true;
+            //cameraInfo.SetDirectionFacing(CameraInfo.FACING_POS_Z);
+            //cameraInfo.SetMode(CameraInfo.STAGNANT);
+
+            //mySwipeDetector = new SwipeDetector();
+            //arrowHandler = new ArrowHandler();
+            //arrowHandler.SetUpArrow(true);
+
+            //movementUI = new MovementUI();
+            //movementUI.InitializeMovementUI();
+
+            //numberPlatformsX = 4;
+            //numberPlatformsZ = 4;
+            //PLATFORM_GRID_X_DISTANCE = numberPlatformsX + 0.7f; //TODO replace with X Dimension Value of platform
+            //PLATFORM_GRID_Z_DISTANCE = numberPlatformsZ + 0.7f; //TODO replace with Z Dimension Value of platform
+            //ballOnNewPlatform = true;
+
+            //CreatePlatforms();
+
+            //if (aerialView)
+            //{
+            //    PutCamInAerialView();
+            //}
+        }
+        else
+        {
+            Debug.Log("GAME OVER");
+        }
     }
 
     public void ShowPatternAnimation()
@@ -724,6 +894,16 @@ public class EntirePlane : MonoBehaviour
                 // Create the Ball once the pattern animation has finished
                 CreateBall();
             }
+        }
+    }
+
+    public void ShowCompletedLevelText()
+    {
+        // Show the Level Complete Text
+        if (levelCompleteText != null)
+        {
+            levelCompleteText.text = "Level Complete!!!";
+            levelCompleteUI.SetActive(true);
         }
     }
 }

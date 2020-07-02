@@ -10,14 +10,30 @@ public class SwipeDetector : MonoBehaviour
 
     public float SWIPE_THRESHOLD = 20f;
 
+    public bool upSwipe;
+    public bool leftSwipe;
+    public bool rightSwipe;
+    public float timeOfSwipe;
+
+    private ArrowHandler arrowHandler;
+
+
+    public SwipeDetector (ArrowHandler arrowHandler)
+    {
+        this.arrowHandler = arrowHandler;
+    }
+
+
     // Start is called before the first frame update
     void Start()
     {
-
+        upSwipe = false;
+        leftSwipe = false;
+        rightSwipe = false;
     }
 
     // Update is called once per frame
-    void Update()
+    public void Update()
     {
         foreach (Touch touch in Input.touches)
         {
@@ -44,6 +60,8 @@ public class SwipeDetector : MonoBehaviour
                 CheckSwipe();
             }
         }
+
+        CheckGameDetection();
     }
 
     void CheckSwipe()
@@ -97,6 +115,11 @@ public class SwipeDetector : MonoBehaviour
     void OnSwipeUp()
     {
         Debug.Log("Swipe UP");
+        upSwipe = true;
+        timeOfSwipe = Time.time;
+
+        // UI
+        arrowHandler.ShowUpArrow();
     }
     void OnSwipeDown()
     {
@@ -105,9 +128,33 @@ public class SwipeDetector : MonoBehaviour
     void OnSwipeLeft()
     {
         Debug.Log("Swipe LEFT");
+        leftSwipe = true;
+        timeOfSwipe = Time.time;
+
+        // UI
+        arrowHandler.ShowLeftArrow();
     }
     void OnSwipeRight()
     {
         Debug.Log("Swipe RIGHT");
+        rightSwipe = true;
+        timeOfSwipe = Time.time;
+
+        // UI
+        arrowHandler.ShowRightArrow();
+    }
+
+    public void CheckGameDetection()
+    {
+        if (upSwipe || leftSwipe || rightSwipe)
+        {
+            // If Entire Plane did not detect the swipe within 2.0 seconds, then there is a problem
+            if (Time.time - timeOfSwipe > 2.0f)
+            {
+                upSwipe = false;
+                leftSwipe = false;
+                rightSwipe = false;
+            }
+        }
     }
 }
