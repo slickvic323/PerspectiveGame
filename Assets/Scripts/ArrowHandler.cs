@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+/*
+ * Class that handles the arrows that show up to give player information about the registered swipe and direction the ball will go after bouncing on platform.
+ */
 public class ArrowHandler : MonoBehaviour
 {
     GameObject directionArrowsUI;
@@ -23,6 +26,9 @@ public class ArrowHandler : MonoBehaviour
 
     }
 
+    /*
+     * Initializes Arrows. Initially none are visible.
+     */
     public void SetUpArrows()
     {
         directionArrowsUI = GameObject.Find("DirectionArrowsUI");
@@ -35,31 +41,49 @@ public class ArrowHandler : MonoBehaviour
         HideLeftArrow();
     }
 
+    /*
+     * Up Arrow Visible.
+    */
     public void ShowUpArrow()
     {
         upArrowObject.SetActive(true);
     }
 
+    /*
+     * Right Arrow Visible.
+    */
     public void ShowRightArrow()
     {
         rightArrowObject.SetActive(true);
     }
 
+    /*
+     * Left Arrow Visible.
+    */
     public void ShowLeftArrow()
     {
         leftArrowObject.SetActive(true);
     }
 
+    /*
+     * Up Arrow Invisible.
+     */
     public void HideUpArrow()
     {
         upArrowObject.SetActive(false);
     }
 
+    /*
+     * Right Arrow Invisible.
+     */
     public void HideRightArrow()
     {
         rightArrowObject.SetActive(false);
     }
 
+    /*
+     * Left Arrow Invisible.
+     */
     public void HideLeftArrow()
     {
         leftArrowObject.SetActive(false);

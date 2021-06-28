@@ -2,11 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * Contains Logic for a single platform in the game.
+*/
 public class Platform : MonoBehaviour
 {
-
+    /*
+     * Stores the maximum number of times that a ball can bounce on a platform.
+     */
     private int MAX_NUM_BOUNCES = 6;
 
+    /*
+     * Stores the number of times remaining that a ball can bounce on a platform.
+    */
     private int numBouncesRemaining = 6; // Really are 5 bounces total, but subtracts right off the first bounce
 
     private bool tapped;
@@ -53,6 +61,9 @@ public class Platform : MonoBehaviour
         numBouncesRemaining--;
     }
 
+    /*
+     * Creates the platform object. 3-D Rectangular Object. Initializes visual properties of platform object.
+     */
     public void CreateGameObject()
     {
         gameObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -60,11 +71,17 @@ public class Platform : MonoBehaviour
         gameObject.GetComponent<Renderer>().material.color = Color.black;
     }
 
+    /*
+     * Returns Platform Game Object
+     */
     public GameObject GetGameObject()
     {
         return gameObject;
     }
 
+    /*
+     * Sets the position of the platform.
+     */
     public void SetPosition(Vector3 position)
     {
         gameObject.transform.position = position;
@@ -72,6 +89,9 @@ public class Platform : MonoBehaviour
         zIndex = (int)Mathf.Floor(position.z);
     }
 
+    /*
+     * Returns the position of the platform.
+     */
     public Vector3 GetPosition()
     {
         return gameObject.transform.position;
@@ -92,13 +112,13 @@ public class Platform : MonoBehaviour
     // Return the Y Dimmension
     public int GetYDimmension()
     {
-        return xDimmension;
+        return yDimmension;
     }
 
     // Return the Z Dimmension
     public int GetZDimmension()
     {
-        return xDimmension;
+        return zDimmension;
     }
 
     public void SetLitUp(bool isLitUp)

@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ * Class that stores all current game data
+ */
 public static class GameManager
 {
-
     public static int numLives;
 
     public static int currentLevelNumber;
@@ -19,6 +21,9 @@ public static class GameManager
 
     private static Mode mode = Mode.new_game_setup;
 
+    /**
+     * Game is always in one of these pre-set Modes 
+     **/
     public enum Mode
     {
         main_menu,
@@ -30,7 +35,9 @@ public static class GameManager
         pattern_animation_showing
     }
 
-
+    /**
+     * Sets up all data that needs to be stored for a brand new game.
+     */
     public static void StartNewGame()
     {
         mode = Mode.gameplay;
@@ -51,6 +58,9 @@ public static class GameManager
         DetermineGridSize();
     }
 
+    /*
+     * Sets the grid size based on the given level difficulty
+     */
     private static void DetermineGridSize()
     {
         switch (levelDifficulty)
@@ -82,48 +92,83 @@ public static class GameManager
         }
     }
 
+    /*
+     * Returns Current Level Difficulty
+     */
     public static int GetLevelDifficulty()
     {
         return levelDifficulty;
     }
 
+    /*
+     * Adds given points to current score
+     */
     private static void AddPoints (uint additionalPoints)
     {
         gameScore += additionalPoints;
     }
 
+    /*
+     * Subtracts given points from current score
+     */
     private static void SubtractPoints (uint numPointsLess)
     {
         gameScore -= numPointsLess;
     }
 
+    /*
+     * Calculates score change for a forward move
+     */
     public static void ForwardMove ()
     {
         AddPoints(75);
     }
 
+    /*
+     * Calculates score change for a turn move
+    */
     public static void TurnMove()
     {
         AddPoints(100);
     }
 
+    /*
+     * Returns the current number of points
+     */
     public static uint GetCurrentNumPoints ()
     {
         return gameScore;
     }
 
+    /*
+     * Returns the number of platforms in the X Direction
+     */
     public static int GetNumXPlatforms ()
     {
         return numXPlatforms;
     }
 
+    /*
+     * Returns the number of platforms in the Z Direction
+     */
     public static int GetNumZPlatforms ()
     {
         return numZPlatforms;
     }
 
+    /*
+     * Returns the current Game Mode
+     */
     public static Mode GetMode ()
     {
         return mode;
+    }
+
+    /*
+     * Sets the game mode.
+     */
+    public static void SetMode(Mode newMode)
+    {
+        mode = newMode;
     }
 }

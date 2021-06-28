@@ -66,7 +66,6 @@
     <Compile Include="Assets\Scripts\CameraInfo.cs" />
     <Compile Include="Assets\Scripts\EntirePlane.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
-    <Compile Include="Assets\Scripts\GameModes.cs" />
     <Compile Include="Assets\Scripts\LevelCompleteUI.cs" />
     <Compile Include="Assets\Scripts\LevelFailUI.cs" />
     <Compile Include="Assets\Scripts\MainMenu.cs" />

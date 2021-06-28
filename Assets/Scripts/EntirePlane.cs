@@ -217,6 +217,10 @@ public class EntirePlane : MonoBehaviour
             {
                 platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].SubtractOneBounce();
             }
+            else
+            {
+                BallMadeWrongMove();
+            }
 
             //Debug.Log("Bounce: " + ball.GetRigidbody().velocity.y);
             Debug.Log("Num bounces Left : " + platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].GetNumBouncesRemaining() + "("+ ball.GetWhichPlatfromOnX() + ", " + ball.GetWhichPlatfromOnZ() + ")");
@@ -831,7 +835,7 @@ public class EntirePlane : MonoBehaviour
         levelFailUI.SetActive(true);
 
         ResetOnFail();
-
+        GameManager.SetMode(GameManager.Mode.failed_level);
     }
 
     public void ResetOnFail()
@@ -905,5 +909,6 @@ public class EntirePlane : MonoBehaviour
             levelCompleteText.text = "Level Complete!!!";
             levelCompleteUI.SetActive(true);
         }
+        GameManager.SetMode(GameManager.Mode.completed_level);
     }
 }
