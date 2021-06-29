@@ -243,4 +243,35 @@ public static class GameManager
         return previousPattern;
     }
 
+    public static bool IsHighScore()
+    {
+        if (gameScore > PlayerPrefs.GetInt("highscore", 0))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public static int GetHighScore()
+    {
+        return PlayerPrefs.GetInt("highscore");
+    }
+
+    public static void SetHighScore(uint score)
+    {
+        if (score >= 0 && score <= 1000000)
+        {
+            PlayerPrefs.SetInt("highscore", (int)score);
+        }
+    }
+
+    public static void HandleEndGamePoints()
+    {
+        // If current score is greater than highscore, then replace highscore with current score
+        if (IsHighScore())
+        {
+            SetHighScore(gameScore);
+        }
+    }
+
 }

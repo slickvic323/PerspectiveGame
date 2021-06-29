@@ -184,7 +184,14 @@ public class EntirePlane : MonoBehaviour
 
             livesRemainingUI = GameObject.Find("LivesRemainingUI");
             livesText = livesRemainingUI.GetComponentInChildren<Text>();
-            livesText.text = GameManager.GetNumLivesRemaining() +" Lives";
+            if (GameManager.GetNumLivesRemaining() != 1)
+            {
+                livesText.text = GameManager.GetNumLivesRemaining() + " Lives";
+            }
+            else
+            {
+                livesText.text = GameManager.GetNumLivesRemaining() + " Life";
+            }
 
             fastForwardButton = GameObject.Find("FastForwardAnimationButton");
             fastForwardButton.SetActive(false);
@@ -812,36 +819,36 @@ public class EntirePlane : MonoBehaviour
                 mySwipeDetector.rightSwipe = false;
             }
 
-            if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
-            {
-                Debug.Log("Clicked");
-                if (!changingPlatforms)
-                {
-                    changePlatformsOnNextBounce = true;
-                    ball.SetDirectionMoving(Ball.MOVING_FORWARD);
-                    cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
-                }
-            }
+            //if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
+            //{
+            //    Debug.Log("Clicked");
+            //    if (!changingPlatforms)
+            //    {
+            //        changePlatformsOnNextBounce = true;
+            //        ball.SetDirectionMoving(Ball.MOVING_FORWARD);
+            //        cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
+            //    }
+            //}
 
-            if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
-            {
-                Debug.Log("Clicked");
-                if (!changingPlatforms)
-                {
-                    changePlatformsOnNextBounce = true;
-                    ball.SetDirectionMoving(Ball.MOVING_RIGHT);
-                }
-            }
+            //if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
+            //{
+            //    Debug.Log("Clicked");
+            //    if (!changingPlatforms)
+            //    {
+            //        changePlatformsOnNextBounce = true;
+            //        ball.SetDirectionMoving(Ball.MOVING_RIGHT);
+            //    }
+            //}
 
-            if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
-            {
-                Debug.Log("Clicked");
-                if (!changingPlatforms)
-                {
-                    changePlatformsOnNextBounce = true;
-                    ball.SetDirectionMoving(Ball.MOVING_LEFT);
-                }
-            }
+            //if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
+            //{
+            //    Debug.Log("Clicked");
+            //    if (!changingPlatforms)
+            //    {
+            //        changePlatformsOnNextBounce = true;
+            //        ball.SetDirectionMoving(Ball.MOVING_LEFT);
+            //    }
+            //}
         }
     }
 
@@ -962,7 +969,14 @@ public class EntirePlane : MonoBehaviour
 
         // Handle Lives
         GameManager.SubtractNumLivesRemaining();
-        livesText.text = GameManager.GetNumLivesRemaining() + " Lives";
+        if (GameManager.GetNumLivesRemaining() != 1)
+        {
+            livesText.text = GameManager.GetNumLivesRemaining() + " Lives";
+        }
+        else
+        {
+            livesText.text = GameManager.GetNumLivesRemaining() + " Life";
+        }
 
         if (GameManager.GetNumLivesRemaining() > 0)
         {
@@ -975,6 +989,8 @@ public class EntirePlane : MonoBehaviour
             // Show Game Fail UI
             gameFailText.text = "Game Over. Score: " + GameManager.GetCurrentNumPoints();
             gameFailUI.SetActive(true);
+
+            GameManager.HandleEndGamePoints();
         }
 
 
