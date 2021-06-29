@@ -40,6 +40,11 @@ public class EntirePlane : MonoBehaviour
      */
     private bool ballExists = false;
 
+    private readonly float NORMAL_ANIMATION_SPEED = 1.2f;
+    private readonly float FAST_FORWARD_ANIMATION_SPEED = 0.4f;
+
+    private float animationSpeed;
+
     float beforeAngle, smallerAngle, biggerAngle;
 
     ArrowHandler arrowHandler;
@@ -60,6 +65,12 @@ public class EntirePlane : MonoBehaviour
     private int ballMovingAlongPatternIndex;
 
     private bool ballWillLandOnWrongPlatform;
+
+    private bool ballWillFallOffEdge;
+
+    private bool validMoveMade;
+
+    private int previousMove;
 
     private Camera mainCamera;
 
@@ -103,6 +114,8 @@ public class EntirePlane : MonoBehaviour
     GameObject bouncesLeftUI;
     GameObject pointScoreUI;
     GameObject livesRemainingUI;
+    GameObject fastForwardButton;
+    GameObject quitGameUI;
     Text levelCompleteText;
     Text levelFailText;
     Text gameFailText;
@@ -127,6 +140,7 @@ public class EntirePlane : MonoBehaviour
         mainCamera = Camera.main;
         cameraInfo = new CameraInfo();
         aerialView = true;
+        previousMove = 0;
         cameraInfo.SetDirectionFacing(CameraInfo.FACING_POS_Z);
         cameraInfo.SetMode(CameraInfo.STAGNANT);
 
@@ -171,6 +185,12 @@ public class EntirePlane : MonoBehaviour
             livesRemainingUI = GameObject.Find("LivesRemainingUI");
             livesText = livesRemainingUI.GetComponentInChildren<Text>();
             livesText.text = GameManager.GetNumLivesRemaining() +" Lives";
+
+            fastForwardButton = GameObject.Find("FastForwardAnimationButton");
+            fastForwardButton.SetActive(false);
+
+            quitGameUI = GameObject.Find("QuitGameUI");
+            quitGameUI.SetActive(false);
         }
 
 
@@ -192,7 +212,10 @@ public class EntirePlane : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        mySwipeDetector.Update();
+        if (GameManager.GetMode() == GameManager.Mode.gameplay)
+        {
+            mySwipeDetector.Update();
+        }
         if (ballExists)
         {
             ProperBounce();
@@ -252,12 +275,23 @@ public class EntirePlane : MonoBehaviour
 
         // Now that the pattern has been decide, show the pattern animation
         showingPatternAnimation = true;
+        animationSpeed = NORMAL_ANIMATION_SPEED;
+        fastForwardButton.SetActive(true);
         patternAnimationPrevTriggerTime = Time.time;
         patternAnimationIndex = 0;
     }
 
     private void ProperBounce()
     {
+        // Check if Ball is going to fall off edge of plane
+        if (ballWillFallOffEdge)
+        {
+            if (GameManager.GetMode() == GameManager.Mode.gameplay)
+            {
+                BallMadeWrongMove();
+            }
+        }
+
         if (!firstBounceYet && lastYVelocity < 0 && ball.GetRigidbody().velocity.y > 0)
         {
             firstBounceVelocity = lastYVelocity * -1f;
@@ -424,6 +458,30 @@ public class EntirePlane : MonoBehaviour
                 arrowHandler.HideUpArrow();
                 arrowHandler.HideRightArrow();
                 arrowHandler.HideLeftArrow();
+
+                // Handle Points Update
+                if (validMoveMade)
+                {
+                    if (previousMove == Ball.MOVING_FORWARD)
+                    {
+                        GameManager.ForwardMove();
+                    }
+                    else if (previousMove == Ball.MOVING_LEFT || previousMove == Ball.MOVING_RIGHT)
+                    {
+                        GameManager.TurnMove();
+                    }
+
+                    if (GameManager.GetCurrentNumPoints().ToString().Length <= 7)
+                    {
+                        pointsText.text = GameManager.GetCurrentNumPoints().ToString() + " pts";
+                    }
+                    else
+                    {
+                        pointsText.text = "1000000 pts";
+                    }
+                    validMoveMade = false;
+                }
+
             }
         }
         lastYVelocity = ball.GetRigidbody().velocity.y;
@@ -545,6 +603,8 @@ public class EntirePlane : MonoBehaviour
         if (!movingInX && !movingInZ)
         {
             changingPlatforms = false;
+            // Save previous move direction for corresponding adding points
+            previousMove = ball.GetDirectionMoving();
             ball.SetDirectionMoving(Ball.NOT_MOVING);
             // Ensure that the camera is in the correct position
             transform.position = cameraEndPosition;
@@ -572,6 +632,7 @@ public class EntirePlane : MonoBehaviour
         platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].SetBallOnPlatform(true, false);
         ballMovingAlongPatternIndex = 1; // Start at 1 because the first move will be to the 1st index in pattern
         ballWillLandOnWrongPlatform = false;
+        ballWillFallOffEdge = false;
         ballWillLandOnFinalPlatform = false;
 
         // Begin moving camera from aerial view to the initial position
@@ -718,71 +779,75 @@ public class EntirePlane : MonoBehaviour
 
     private void OnGUI()
     {
-        if (mySwipeDetector.upSwipe)
+        if (GameManager.GetMode() == GameManager.Mode.gameplay)
         {
-            if (!changingPlatforms)
+            if (mySwipeDetector.upSwipe)
             {
-                changePlatformsOnNextBounce = true;
-                ball.SetDirectionMoving(Ball.MOVING_FORWARD);
-                cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
+                if (!changingPlatforms)
+                {
+                    changePlatformsOnNextBounce = true;
+                    ball.SetDirectionMoving(Ball.MOVING_FORWARD);
+                    cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
+                }
+                mySwipeDetector.upSwipe = false;
             }
-            mySwipeDetector.upSwipe = false;
-        }
 
-        if (mySwipeDetector.leftSwipe)
-        {
-            if (!changingPlatforms)
+            if (mySwipeDetector.leftSwipe)
             {
-                changePlatformsOnNextBounce = true;
-                ball.SetDirectionMoving(Ball.MOVING_LEFT);
+                if (!changingPlatforms)
+                {
+                    changePlatformsOnNextBounce = true;
+                    ball.SetDirectionMoving(Ball.MOVING_LEFT);
+                }
+                mySwipeDetector.leftSwipe = false;
             }
-            mySwipeDetector.leftSwipe = false;
-        }
 
-        if (mySwipeDetector.rightSwipe)
-        {
-            if (!changingPlatforms)
+            if (mySwipeDetector.rightSwipe)
             {
-                changePlatformsOnNextBounce = true;
-                ball.SetDirectionMoving(Ball.MOVING_RIGHT);
+                if (!changingPlatforms)
+                {
+                    changePlatformsOnNextBounce = true;
+                    ball.SetDirectionMoving(Ball.MOVING_RIGHT);
+                }
+                mySwipeDetector.rightSwipe = false;
             }
-            mySwipeDetector.rightSwipe = false;
-        }
 
-        if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
-        {
-            Debug.Log("Clicked");
-            if (!changingPlatforms)
+            if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
             {
-                changePlatformsOnNextBounce = true;
-                ball.SetDirectionMoving(Ball.MOVING_FORWARD);
-                cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
+                Debug.Log("Clicked");
+                if (!changingPlatforms)
+                {
+                    changePlatformsOnNextBounce = true;
+                    ball.SetDirectionMoving(Ball.MOVING_FORWARD);
+                    cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
+                }
             }
-        }
 
-        if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
-        {
-            Debug.Log("Clicked");
-            if (!changingPlatforms)
+            if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
             {
-                changePlatformsOnNextBounce = true;
-                ball.SetDirectionMoving(Ball.MOVING_RIGHT);
+                Debug.Log("Clicked");
+                if (!changingPlatforms)
+                {
+                    changePlatformsOnNextBounce = true;
+                    ball.SetDirectionMoving(Ball.MOVING_RIGHT);
+                }
             }
-        }
 
-        if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
-        {
-            Debug.Log("Clicked");
-            if (!changingPlatforms)
+            if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
             {
-                changePlatformsOnNextBounce = true;
-                ball.SetDirectionMoving(Ball.MOVING_LEFT);
+                Debug.Log("Clicked");
+                if (!changingPlatforms)
+                {
+                    changePlatformsOnNextBounce = true;
+                    ball.SetDirectionMoving(Ball.MOVING_LEFT);
+                }
             }
         }
     }
 
     public void CheckIfValidMove()
     {
+        validMoveMade = false;
         // Works for square grid
         if (ballExists)
         {
@@ -791,7 +856,7 @@ public class EntirePlane : MonoBehaviour
             // Check if falling off the edge
             if (currentX > numberPlatformsX-1 || currentX < 0 || currentZ > numberPlatformsZ || currentZ < 0)
             {
-                ballWillLandOnWrongPlatform = true;
+                ballWillFallOffEdge = true;
                 return;
             }
 
@@ -815,21 +880,11 @@ public class EntirePlane : MonoBehaviour
                 }
             }
 
-
+            ballWillFallOffEdge = false;
             ballWillLandOnWrongPlatform = false;
+            validMoveMade = true;
             // Now that it is established that the CORRECT move was made, we can check if the player made it to the final platform of level
             CheckIfMadeCorrectFinalMove(currentX, currentZ);
-
-            // Since CORRECT move was made, add points for correct move
-            GameManager.ForwardMove();
-            if (GameManager.GetCurrentNumPoints().ToString().Length <= 7)
-            {
-                pointsText.text = GameManager.GetCurrentNumPoints().ToString() + " pts";
-            }
-            else
-            {
-                pointsText.text = "1000000 pts";
-            }
         }
     }
 
@@ -931,7 +986,7 @@ public class EntirePlane : MonoBehaviour
     {
         float currentTime = Time.time;
         // If it has been at least 1.2 seconds since the previous platform in the pattern turned blue for the animation
-        if (currentTime - patternAnimationPrevTriggerTime >= 1.2f)
+        if (currentTime - patternAnimationPrevTriggerTime >= animationSpeed)
         {
             List<Platform> patternList = pattern.GetPattern();
             if (patternAnimationIndex < patternList.Count)
@@ -945,9 +1000,22 @@ public class EntirePlane : MonoBehaviour
             {
                 // Reached the end of the animation
                 showingPatternAnimation = false;
+                animationSpeed = NORMAL_ANIMATION_SPEED;
+                fastForwardButton.SetActive(false);
+                GameManager.SetMode(GameManager.Mode.gameplay);
 
                 // Create the Ball once the pattern animation has finished
                 CreateBall();
+
+                // Set all platforms to black
+                for (int i=0;i<numberPlatformsX;i++)
+                {
+                    List<Platform> currentRow = platforms[i];
+                    for (int j=0;j<numberPlatformsZ;j++)
+                    {
+                        currentRow[j].GetGameObject().GetComponent<Renderer>().material.color = Color.black;
+                    }
+                }
             }
         }
     }
@@ -961,5 +1029,38 @@ public class EntirePlane : MonoBehaviour
             levelCompleteUI.SetActive(true);
         }
         GameManager.SetMode(GameManager.Mode.completed_level);
+    }
+
+    public void FastForwardButtonPressed()
+    {
+        if (animationSpeed == NORMAL_ANIMATION_SPEED)
+        {
+            animationSpeed = FAST_FORWARD_ANIMATION_SPEED;
+        }
+    }
+
+    public void FastForwardButtonReleased()
+    {
+        if (animationSpeed == FAST_FORWARD_ANIMATION_SPEED)
+        {
+            animationSpeed = NORMAL_ANIMATION_SPEED;
+        }
+    }
+
+    public void QuitGameButtonPressed()
+    {
+        if (!quitGameUI.active)
+        {
+            quitGameUI.SetActive(true);
+        }
+        else
+        {
+            quitGameUI.SetActive(false);
+        }
+    }
+
+    public void DoNotQuit()
+    {
+        quitGameUI.SetActive(false);
     }
 }

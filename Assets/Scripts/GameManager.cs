@@ -47,7 +47,7 @@ public static class GameManager
      */
     public static void StartNewGame()
     {
-        mode = Mode.gameplay;
+        mode = Mode.pattern_animation_showing;
         numLives = 3;
         currentLevelNumber = 1;
         levelDifficulty = 1;
@@ -60,7 +60,7 @@ public static class GameManager
     // This sets up a new level, but is continuing an already existing game
     public static void StartNewLevel()
     {
-        mode = Mode.gameplay;
+        mode = Mode.pattern_animation_showing;
         if (!failedPreviousAttempt)
         {
             if (levelDifficulty < 5)
@@ -135,7 +135,7 @@ public static class GameManager
      */
     public static void ForwardMove ()
     {
-        AddPoints(75);
+        AddPoints(50);
     }
 
     /*

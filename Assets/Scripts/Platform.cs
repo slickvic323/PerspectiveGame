@@ -143,6 +143,10 @@ public class Platform : MonoBehaviour
         {
             gameObject.GetComponent<Renderer>().material.color = Color.green;
         }
+        else if (!ballOnPlatform && !ballLandingOnWrongPlatform)
+        {
+            gameObject.GetComponent<Renderer>().material.color = Color.black;
+        }
         else
         {
             litUp = true;

@@ -9,6 +9,8 @@ TagManager:
   - LevelFail
   - BouncesLeftUI
   - GameFail
+  - FastForwardAnimationButton
+  - QuitGame
   layers:
   - Default
   - TransparentFX
