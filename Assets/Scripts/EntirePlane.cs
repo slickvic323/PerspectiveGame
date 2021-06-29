@@ -9,16 +9,35 @@ public class EntirePlane : MonoBehaviour
 
     //private static GameManager myGameManager;
 
+    /*
+     * Stores the Number of Platforms on the X-Axis
+     */
     private int numberPlatformsX;
 
+    /*
+     * Stores the Number of Platforms on the Z-Axis
+     */
     private int numberPlatformsZ;
 
+    /*
+     * Stores the Platform Game Objects in a 2-D ArrayList. 
+     * X Axis = Outer ArrayList, Z-Axis = Inner ArrayList
+    */
     private List<List<Platform>> platforms;
 
+    /*
+     * Swipe Detector Object
+     */
     SwipeDetector mySwipeDetector;
 
+    /*
+     * Ball Game Object
+     */
     private Ball ball;
 
+    /*
+     * Stores whether or not the ball exists in Game at current moment
+     */
     private bool ballExists = false;
 
     float beforeAngle, smallerAngle, biggerAngle;
@@ -80,12 +99,16 @@ public class EntirePlane : MonoBehaviour
     GameObject myCanvas;
     GameObject levelCompleteUI;
     GameObject levelFailUI;
+    GameObject gameFailUI;
     GameObject bouncesLeftUI;
     GameObject pointScoreUI;
+    GameObject livesRemainingUI;
     Text levelCompleteText;
     Text levelFailText;
+    Text gameFailText;
     TextMeshProUGUI numBouncesLeftText;
     Text pointsText;
+    Text livesText;
 
     private bool ballWillLandOnFinalPlatform;
 
@@ -125,12 +148,29 @@ public class EntirePlane : MonoBehaviour
             levelFailUI.SetActive(false);
             levelFailText = levelFailUI.GetComponentInChildren<Text>();
 
+            gameFailUI = GameObject.FindWithTag("GameFail");
+            gameFailUI.SetActive(false);
+            gameFailText = gameFailUI.GetComponentInChildren<Text>();
+
             bouncesLeftUI = GameObject.FindWithTag("BouncesLeftUI");
             numBouncesLeftText = bouncesLeftUI.GetComponentInChildren<TextMeshProUGUI>();
+            numBouncesLeftText.text = "";
 
             pointScoreUI = GameObject.Find("PointScoreUI");
             pointsText = pointScoreUI.GetComponentInChildren<Text>();
-            pointsText.text = GameManager.GetCurrentNumPoints().ToString() + " pts";
+            if (GameManager.GetCurrentNumPoints().ToString().Length <= 7)
+            {
+                pointsText.text = GameManager.GetCurrentNumPoints().ToString() + " pts";
+            }
+            else
+            {
+                pointsText.text = "1000000 pts";
+                Debug.Log(pointsText.text.Length);
+            }
+
+            livesRemainingUI = GameObject.Find("LivesRemainingUI");
+            livesText = livesRemainingUI.GetComponentInChildren<Text>();
+            livesText.text = GameManager.GetNumLivesRemaining() +" Lives";
         }
 
 
@@ -175,10 +215,10 @@ public class EntirePlane : MonoBehaviour
     void CreatePlatforms()
     {
         platforms = new List<List<Platform>>();
-        for (int i=0;i<numberPlatformsX;i++)
+        for (int i = 0; i < numberPlatformsX; i++)
         {
             List<Platform> temp = new List<Platform>();
-            for (int j=0;j<numberPlatformsZ;j++)
+            for (int j = 0; j < numberPlatformsZ; j++)
             {
                 Platform platform = new Platform();
                 platform.CreateGameObject();
@@ -189,12 +229,26 @@ public class EntirePlane : MonoBehaviour
         }
 
         pattern = new Pattern();
-        bool createdPattern = pattern.CreatePattern(platforms, numberPlatformsX, numberPlatformsZ);
+        bool createdPattern = false;
+        if (!GameManager.GetFailedPrevAttempt())
+        {
+            createdPattern = pattern.CreatePattern(platforms, numberPlatformsX, numberPlatformsZ);
+        }
+        else
+        {
+            // Re-use previous pattern
+            createdPattern = pattern.ResetPreviousPattern(platforms, numberPlatformsX, numberPlatformsZ, GameManager.GetPreviousPattern());
+            GameManager.SetFailedPrevAttempt(false);
+        }
         // Called from here to prevent possible stack overflow error (Avoiding Recursion from within Pattern class)
         while (!createdPattern)
         {
             createdPattern = pattern.CreatePattern(platforms, numberPlatformsX, numberPlatformsZ);
         }
+
+        // Save the previous pattern to re-use in case player fails level
+        //GameManager.CopyPreviousPlaneOfPlatforms(platforms);
+        GameManager.SetPreviousPattern(pattern.GetPattern());
 
         // Now that the pattern has been decide, show the pattern animation
         showingPatternAnimation = true;
@@ -212,26 +266,38 @@ public class EntirePlane : MonoBehaviour
 
         if (firstBounceYet && lastYVelocity < 0 && ball.GetRigidbody().velocity.y > 0)
         {
-            // Check if there are bounces remaining on this platform
-            if (platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].GetNumBouncesRemaining() > 0)
+            if (GameManager.GetMode() == GameManager.Mode.gameplay)
             {
-                platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].SubtractOneBounce();
+                // Check if there are bounces remaining on this platform
+                if (platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].GetNumBouncesRemaining() > 0)
+                {
+                    // Bounces Remaining
+                    platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].SubtractOneBounce();
+                }
+                else
+                {
+                    // No Bounces Remaining
+                    BallMadeWrongMove();
+                }
+                numBouncesLeftText.text = platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].GetNumBouncesRemaining().ToString();
             }
-            else
+            else if (GameManager.GetMode() == GameManager.Mode.failed_level ||
+                GameManager.GetMode() == GameManager.Mode.completed_level)
             {
-                BallMadeWrongMove();
+                // If Failed level or completed level, do not display the number of bounces left Text anymore
+                numBouncesLeftText.text = "";
             }
 
-            //Debug.Log("Bounce: " + ball.GetRigidbody().velocity.y);
-            Debug.Log("Num bounces Left : " + platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].GetNumBouncesRemaining() + "("+ ball.GetWhichPlatfromOnX() + ", " + ball.GetWhichPlatfromOnZ() + ")");
-            numBouncesLeftText.text = platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].GetNumBouncesRemaining().ToString();
 
             ball.GetRigidbody().velocity = new Vector3(ball.GetRigidbody().velocity.x, firstBounceVelocity, ball.GetRigidbody().velocity.z);
 
             // Check if made incorrect move
             if (ballWillLandOnWrongPlatform)
             {
-                BallMadeWrongMove();
+                if (GameManager.GetMode() == GameManager.Mode.gameplay)
+                {
+                    BallMadeWrongMove();
+                }
             }
             else if (ballWillLandOnFinalPlatform)
             {
@@ -756,7 +822,14 @@ public class EntirePlane : MonoBehaviour
 
             // Since CORRECT move was made, add points for correct move
             GameManager.ForwardMove();
-            pointsText.text = GameManager.GetCurrentNumPoints().ToString() + " pts";
+            if (GameManager.GetCurrentNumPoints().ToString().Length <= 7)
+            {
+                pointsText.text = GameManager.GetCurrentNumPoints().ToString() + " pts";
+            }
+            else
+            {
+                pointsText.text = "1000000 pts";
+            }
         }
     }
 
@@ -830,50 +903,28 @@ public class EntirePlane : MonoBehaviour
             }
         }
 
-        // Show Fail UI
-        levelFailText.text = "You Made the Wrong Move";
-        levelFailUI.SetActive(true);
 
-        ResetOnFail();
-        GameManager.SetMode(GameManager.Mode.failed_level);
-    }
 
-    public void ResetOnFail()
-    {
-        GameManager.numLives--;
-        if (GameManager.numLives > 0)
+        // Handle Lives
+        GameManager.SubtractNumLivesRemaining();
+        livesText.text = GameManager.GetNumLivesRemaining() + " Lives";
+
+        if (GameManager.GetNumLivesRemaining() > 0)
         {
-            //ballExists = false;
-            //mainCamera = Camera.main;
-            //cameraInfo = new CameraInfo();
-            //aerialView = true;
-            //cameraInfo.SetDirectionFacing(CameraInfo.FACING_POS_Z);
-            //cameraInfo.SetMode(CameraInfo.STAGNANT);
-
-            //mySwipeDetector = new SwipeDetector();
-            //arrowHandler = new ArrowHandler();
-            //arrowHandler.SetUpArrow(true);
-
-            //movementUI = new MovementUI();
-            //movementUI.InitializeMovementUI();
-
-            //numberPlatformsX = 4;
-            //numberPlatformsZ = 4;
-            //PLATFORM_GRID_X_DISTANCE = numberPlatformsX + 0.7f; //TODO replace with X Dimension Value of platform
-            //PLATFORM_GRID_Z_DISTANCE = numberPlatformsZ + 0.7f; //TODO replace with Z Dimension Value of platform
-            //ballOnNewPlatform = true;
-
-            //CreatePlatforms();
-
-            //if (aerialView)
-            //{
-            //    PutCamInAerialView();
-            //}
+            // Show Level Fail UI
+            levelFailText.text = "You Made the Wrong Move";
+            levelFailUI.SetActive(true);
         }
         else
         {
-            Debug.Log("GAME OVER");
+            // Show Game Fail UI
+            gameFailText.text = "Game Over. Score: " + GameManager.GetCurrentNumPoints();
+            gameFailUI.SetActive(true);
         }
+
+
+        GameManager.SetFailedPrevAttempt(true);
+        GameManager.SetMode(GameManager.Mode.failed_level);
     }
 
     public void ShowPatternAnimation()

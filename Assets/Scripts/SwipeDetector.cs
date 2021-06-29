@@ -18,6 +18,9 @@ public class SwipeDetector : MonoBehaviour
     private ArrowHandler arrowHandler;
 
 
+    /*
+     * Constructor
+     */
     public SwipeDetector (ArrowHandler arrowHandler)
     {
         this.arrowHandler = arrowHandler;
@@ -64,6 +67,9 @@ public class SwipeDetector : MonoBehaviour
         CheckGameDetection();
     }
 
+    /*
+     * Checks for Vertical or Horizontal Swipe
+     */
     void CheckSwipe()
     {
         // Check if Vertical swipe

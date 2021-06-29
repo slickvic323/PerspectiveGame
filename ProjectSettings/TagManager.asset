@@ -8,6 +8,7 @@ TagManager:
   - LevelComplete
   - LevelFail
   - BouncesLeftUI
+  - GameFail
   layers:
   - Default
   - TransparentFX

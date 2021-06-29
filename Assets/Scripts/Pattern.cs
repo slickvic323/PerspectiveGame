@@ -101,6 +101,37 @@ public class Pattern : MonoBehaviour
         return true;
     }
 
+    public bool ResetPreviousPattern(List<List<Platform>> planeOfPlatforms, int numXPlatforms, int numZPlatforms, List<List<int>> previousPattern)
+    {
+        currentNumMoves = 0;
+        reachedValidEndpoint = false;
+
+        invalidSpot = new bool[numZPlatforms, numXPlatforms];
+
+        NUM_X_PLATFORMS = numXPlatforms;
+        NUM_Z_PLATFORMS = numZPlatforms;
+
+        MIN_POSSIBLE_NUM_MOVES = NUM_Z_PLATFORMS - 1;
+        MAX_POSSIBLE_NUM_MOVES = (numXPlatforms * numZPlatforms) - 1;
+
+        MIN_AIMING_FOR = (int)Mathf.Floor((float)MAX_POSSIBLE_NUM_MOVES / 2.5f);
+        MAX_AIMING_FOR = (int)Mathf.Floor((float)MAX_POSSIBLE_NUM_MOVES / 1.25f);
+
+        pattern = new List<Platform>();
+        for (int i = 0; i < previousPattern.Count; i++)
+        {
+            pattern.Add(planeOfPlatforms[previousPattern[i][0]][previousPattern[i][1]]);
+        }
+
+        foreach (Platform platform in pattern)
+        {
+            // platform.GetGameObject().GetComponent<Renderer>().material.color = Color.blue;
+            platform.SetInPattern(true);
+        }
+
+        return true;
+    }
+
     public List<Platform> GetPattern()
     {
         return pattern;

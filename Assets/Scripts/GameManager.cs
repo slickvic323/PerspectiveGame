@@ -7,7 +7,7 @@ using UnityEngine;
  */
 public static class GameManager
 {
-    public static int numLives;
+    private static int numLives;
 
     public static int currentLevelNumber;
 
@@ -18,6 +18,13 @@ public static class GameManager
     private static int numXPlatforms;
 
     private static int numZPlatforms;
+
+    private static bool failedPreviousAttempt;
+
+    /*
+     * 2D List - Inner List = [X-Index, Z-Index]
+     */
+    private static List<List<int>> previousPattern;
 
     private static Mode mode = Mode.new_game_setup;
 
@@ -45,16 +52,23 @@ public static class GameManager
         currentLevelNumber = 1;
         levelDifficulty = 1;
         gameScore = 0;
+        failedPreviousAttempt = false;
+        previousPattern = null;
         DetermineGridSize();
     }
 
     // This sets up a new level, but is continuing an already existing game
     public static void StartNewLevel()
     {
-        if (levelDifficulty<5)
+        mode = Mode.gameplay;
+        if (!failedPreviousAttempt)
         {
-            levelDifficulty++;
+            if (levelDifficulty < 5)
+            {
+                levelDifficulty++;
+            }
         }
+
         DetermineGridSize();
     }
 
@@ -171,4 +185,62 @@ public static class GameManager
     {
         mode = newMode;
     }
+
+    /*
+     * Returns number of lives remaining from current game
+     */
+    public static int GetNumLivesRemaining()
+    {
+        return numLives;
+    }
+
+    /*
+     * Subtracts one life.
+     */
+    public static void SubtractNumLivesRemaining()
+    {
+        numLives--;
+    }
+
+    /*
+     * Getter - Failed Previous Attempt
+     */
+    public static bool GetFailedPrevAttempt()
+    {
+        return failedPreviousAttempt;
+    }
+
+    /*
+     * Setter - Failed Previous Attempt
+     */
+    public static void SetFailedPrevAttempt(bool failed)
+    {
+        failedPreviousAttempt = failed;
+    }
+
+    public static void SetPreviousPattern(List<Platform> thePattern)
+    {
+
+        previousPattern = new List<List<int>>();
+        for (int i=0;i<thePattern.Count;i++)
+        {
+            List<int> tempInnerList = new List<int>();
+            tempInnerList.Add(thePattern[i].GetXIndex());
+            tempInnerList.Add(thePattern[i].GetZIndex());
+            previousPattern.Add(tempInnerList);
+
+            //Platform deepCopyPlatform = new Platform();
+            //deepCopyPlatform.CreateGameObject();
+            //Vector3 deepCopyPosition = new Vector3(thePattern[i].GetXIndex(), 0, thePattern[i].GetZIndex());
+            ////deepCopyPlatform.SetPosition(thePattern[i].GetPosition());
+            //deepCopyPlatform.SetPosition(deepCopyPosition);
+            //previousPattern.Add(deepCopyPlatform);
+        }
+    }
+
+    public static List<List<int>> GetPreviousPattern()
+    {
+        return previousPattern;
+    }
+
 }
