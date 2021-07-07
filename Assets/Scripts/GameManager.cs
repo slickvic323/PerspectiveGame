@@ -2,35 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/*
- * Class that stores all current game data
+/**
+ * Class that stores all current game data.
+ * Static because the values are saved between scenes.
  */
 public static class GameManager
 {
-    private static int numLives;
-
-    public static int currentLevelNumber;
-
-    private static int levelDifficulty;
-
-    private static uint gameScore;
-
-    private static int numXPlatforms;
-
-    private static int numZPlatforms;
-
-    private static bool failedPreviousAttempt;
-
-    /*
-     * 2D List - Inner List = [X-Index, Z-Index]
-     */
-    private static List<List<int>> previousPattern;
-
-    private static Mode mode = Mode.new_game_setup;
 
     /**
      * Game is always in one of these pre-set Modes 
-     **/
+    **/
     public enum Mode
     {
         main_menu,
@@ -41,6 +22,49 @@ public static class GameManager
         new_game_setup,
         pattern_animation_showing
     }
+
+    /**
+     * Integer - Stores Current Level Number
+     */
+    private static int currentLevelNumber;
+
+    /**
+     * Stores the number of lives remaining for current game
+     */
+    private static int numLives;
+
+    /**
+     * Stores the level difficulty for current game
+     */
+    private static int levelDifficulty;
+
+    /**
+     * Stores the current game score.
+     */
+    private static uint gameScore;
+
+    /**
+     * Stores the current number of x platforms in plane.
+     */
+    private static int numXPlatforms;
+
+    /**
+     * Stores the current number of x platforms in plane.
+     */
+    private static int numZPlatforms;
+
+    /**
+     * Stores whether or not the player failed the previous level.
+     */
+    private static bool failedPreviousAttempt;
+
+    /**
+     * 2D List - Inner List = [X-Index, Z-Index]
+     */
+    private static List<List<int>> previousPattern;
+
+
+    private static Mode mode = Mode.new_game_setup;
 
     /**
      * Sets up all data that needs to be stored for a brand new game.
@@ -63,7 +87,7 @@ public static class GameManager
         mode = Mode.pattern_animation_showing;
         if (!failedPreviousAttempt)
         {
-            if (levelDifficulty < 5)
+            if (levelDifficulty < 7)
             {
                 levelDifficulty++;
             }
@@ -99,9 +123,17 @@ public static class GameManager
                 numXPlatforms = 5;
                 numZPlatforms = 5;
                 break;
-            default:
+            case (6):
                 numXPlatforms = 5;
-                numZPlatforms = 5;
+                numZPlatforms = 6;
+                break;
+            case (7):
+                numXPlatforms = 6;
+                numZPlatforms = 6;
+                break;
+            default:
+                numXPlatforms = 6;
+                numZPlatforms = 6;
                 break;
         }
     }
@@ -218,6 +250,9 @@ public static class GameManager
         failedPreviousAttempt = failed;
     }
 
+    /**
+     * Saves the current pattern off in case it needs to be repeated (in case of player failure of level)
+     */
     public static void SetPreviousPattern(List<Platform> thePattern)
     {
 
@@ -238,11 +273,17 @@ public static class GameManager
         }
     }
 
+    /**
+     * Returns previous pattern
+     */
     public static List<List<int>> GetPreviousPattern()
     {
         return previousPattern;
     }
 
+    /**
+     * Returns true if current score is new high score.
+     */
     public static bool IsHighScore()
     {
         if (gameScore > PlayerPrefs.GetInt("highscore", 0))
@@ -252,11 +293,17 @@ public static class GameManager
         return false;
     }
 
+    /**
+     * Returns the high score
+     */
     public static int GetHighScore()
     {
         return PlayerPrefs.GetInt("highscore");
     }
 
+    /**
+     * Sets new high score with passed in value
+     */
     public static void SetHighScore(uint score)
     {
         if (score >= 0 && score <= 1000000)
@@ -265,6 +312,9 @@ public static class GameManager
         }
     }
 
+    /**
+     * Handles creating new high score if necessary.
+     */
     public static void HandleEndGamePoints()
     {
         // If current score is greater than highscore, then replace highscore with current score

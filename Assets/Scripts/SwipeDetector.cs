@@ -1,31 +1,52 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class SwipeDetector : MonoBehaviour
 {
-    private Vector2 fingerDown;
-    private Vector2 fingerUp;
+    /**
+     * Detect Swipe After Releasing from screen
+     */
     public bool detectSwipeOnlyAfterRelease = false;
 
-    public float SWIPE_THRESHOLD = 20f;
+    /**
+     * The Swipe threshold is the amount that user must move finger on screen to record a swipe
+     */
+    public readonly float SWIPE_THRESHOLD = 20f;
 
+    /*
+     * Tell if a swipe has occured in up, right, or left directions
+     */
     public bool upSwipe;
     public bool leftSwipe;
     public bool rightSwipe;
+
+    /**
+     * Records the time that swipe occurred.
+     */
     public float timeOfSwipe;
 
+    /**
+     * Records X and Y coordinates of where finger pressed down on screen.
+     */
+    private Vector2 fingerDown;
+
+    /**
+     * Records X and Y coordinates of where finger lifted up from screen.
+     */
+    private Vector2 fingerUp;
+    
+    /*
+     * Instance of Arrow Handler Object
+     */
     private ArrowHandler arrowHandler;
 
 
-    /*
+    /**
      * Constructor
      */
     public SwipeDetector (ArrowHandler arrowHandler)
     {
         this.arrowHandler = arrowHandler;
     }
-
 
     // Start is called before the first frame update
     void Start()
@@ -56,7 +77,7 @@ public class SwipeDetector : MonoBehaviour
                 }
             }
 
-            // Detects swip after finger is released
+            // Detects swipe after finger is released
             if (touch.phase == TouchPhase.Ended)
             {
                 fingerDown = touch.position;
@@ -70,7 +91,7 @@ public class SwipeDetector : MonoBehaviour
     /*
      * Checks for Vertical or Horizontal Swipe
      */
-    void CheckSwipe()
+    private void CheckSwipe()
     {
         // Check if Vertical swipe
         if (VerticalMove() > SWIPE_THRESHOLD && VerticalMove() > HorizontalValMove())
@@ -107,50 +128,80 @@ public class SwipeDetector : MonoBehaviour
         }
     }
 
-    float VerticalMove()
+    /**
+     * Returns the amount that finger moved vertically across screen.
+     */
+    private float VerticalMove()
     {
         return Mathf.Abs(fingerDown.y - fingerUp.y);
     }
 
-    float HorizontalValMove()
+    /**
+     * Returns the amount that finer moved horizontally across screen.
+     */
+    private float HorizontalValMove()
     {
         return Mathf.Abs(fingerDown.x - fingerUp.x);
     }
 
     /////////////////////////Callback Functions/////////////////
-    void OnSwipeUp()
+    /**
+     * Called when swipe up is detected
+     */
+    private void OnSwipeUp()
     {
         Debug.Log("Swipe UP");
         upSwipe = true;
         timeOfSwipe = Time.time;
 
         // UI
+        arrowHandler.HideLeftArrow();
+        arrowHandler.HideRightArrow();
         arrowHandler.ShowUpArrow();
     }
-    void OnSwipeDown()
+
+    /**
+     * Called when swipe down is detected
+     */
+    private void OnSwipeDown()
     {
         Debug.Log("Swipe DOWN");
     }
-    void OnSwipeLeft()
+
+    /**
+     * Called when swipe left is detected
+     */
+    private void OnSwipeLeft()
     {
         Debug.Log("Swipe LEFT");
         leftSwipe = true;
         timeOfSwipe = Time.time;
 
         // UI
+        arrowHandler.HideRightArrow();
+        arrowHandler.HideUpArrow();
         arrowHandler.ShowLeftArrow();
     }
-    void OnSwipeRight()
+
+    /**
+     * Called when swipe right is detected
+     */
+    private void OnSwipeRight()
     {
         Debug.Log("Swipe RIGHT");
         rightSwipe = true;
         timeOfSwipe = Time.time;
 
         // UI
+        arrowHandler.HideLeftArrow();
+        arrowHandler.HideUpArrow();
         arrowHandler.ShowRightArrow();
     }
-
-    public void CheckGameDetection()
+    
+    /**
+     * Ensures that swipes are detected in a timely manner
+     */
+    private void CheckGameDetection()
     {
         if (upSwipe || leftSwipe || rightSwipe)
         {

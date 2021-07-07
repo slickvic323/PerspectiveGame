@@ -11,6 +11,7 @@ TagManager:
   - GameFail
   - FastForwardAnimationButton
   - QuitGame
+  - AudioManager
   layers:
   - Default
   - TransparentFX

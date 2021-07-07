@@ -4,26 +4,69 @@ using UnityEngine;
 
 public class Pattern : MonoBehaviour
 {
+    /**
+     * Stores the ArrayList of Platforms in the order of the pattern.
+     */
     private List<Platform> pattern;
 
+    /**
+     * Stores the number of x platforms that exist in plane.
+     */
     private int NUM_X_PLATFORMS;
+
+    /**
+     * Stores the number of z platforms that exist in plane.
+     */
     private int NUM_Z_PLATFORMS;
 
+    /**
+     * Stores the minimum number of possible moves in a pattern for the current plane of platforms.
+     */
     private int MIN_POSSIBLE_NUM_MOVES;
+
+    /**
+     * Stores the minimum number of possible moves in a pattern for the current plane of platforms.
+    */
     private int MAX_POSSIBLE_NUM_MOVES;
 
+    /**
+     * Stores integer value for the minimum number of platforms in pattern that is allowed.
+     */
     private int MIN_AIMING_FOR;
+
+    /**
+     * Stores integer value for the minimum number of platforms in pattern that is allowed.
+     */
     private int MAX_AIMING_FOR;
 
+    /**
+     * Stores the current number of moves in the pattern.
+     */
     private int currentNumMoves;
 
+    /**
+     * Boolean value is true if a valid end point to the pattern has been reached.
+     */
     private bool reachedValidEndpoint;
 
+    /**
+     * Array of booleans representing if a platform is invalid to be added to the pattern.
+     */
     private bool[,] invalidSpot;
 
-    int currentXIndex;
-    int currentZIndex;
+    /**
+     * Stores X Index of current platform in pattern.
+     */
+    private int currentXIndex;
 
+    /**
+     * Stores Z Index of current platform in pattern.
+     */
+    private int currentZIndex;
+
+    /**
+     * Enum representing the different directions that user is facing.
+     */
     private enum DirectionFacing
     {
         POS_Z = 0,
@@ -32,8 +75,14 @@ public class Pattern : MonoBehaviour
         NEG_X = 3
     }
 
+    /**
+     * Stores integer that represents current direction facing.
+     */
     private int directionFacing;
 
+    /**
+     * Boolean representing if platform can be added.
+     */
     private bool canAddPlatform;
 
     // Start is called before the first frame update
@@ -48,6 +97,11 @@ public class Pattern : MonoBehaviour
         
     }
 
+    /**
+     * Creates pattern when given the number of x and z platforms.
+     * Returns true if pattern is valid.
+     * Returns false if pattern is invalid.
+     */
     public bool CreatePattern(List<List<Platform>> planeOfPlatforms, int numXPlatforms, int numZPlatforms)
     {
         currentNumMoves = 0;
@@ -101,6 +155,11 @@ public class Pattern : MonoBehaviour
         return true;
     }
 
+    /**
+     * Sets up pattern to match given previous pattern values.
+     * Returns true if pattern is valid.
+     * Returns false, otherwise.
+     */
     public bool ResetPreviousPattern(List<List<Platform>> planeOfPlatforms, int numXPlatforms, int numZPlatforms, List<List<int>> previousPattern)
     {
         currentNumMoves = 0;
@@ -132,11 +191,17 @@ public class Pattern : MonoBehaviour
         return true;
     }
 
+    /**
+     * Returns pattern.
+     */
     public List<Platform> GetPattern()
     {
         return pattern;
     }
 
+    /**
+     * Adds a new platform to the already existing platform.
+     */
     private bool AddPlatformToPattern(List<List<Platform>> planeOfPlatforms)
     {
         bool upMoveValid = false;

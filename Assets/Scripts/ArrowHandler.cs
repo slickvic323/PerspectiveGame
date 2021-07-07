@@ -1,18 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 
 /*
  * Class that handles the arrows that show up to give player information about the registered swipe and direction the ball will go after bouncing on platform.
  */
 public class ArrowHandler : MonoBehaviour
 {
-    GameObject directionArrowsUI;
+    private GameObject directionArrowsUI;
 
-    GameObject upArrowObject;
-    GameObject rightArrowObject;
-    GameObject leftArrowObject;
+    private GameObject upArrowObject;
+    private GameObject rightArrowObject;
+    private GameObject leftArrowObject;
 
 
     // Start is called before the first frame update
@@ -26,7 +23,7 @@ public class ArrowHandler : MonoBehaviour
 
     }
 
-    /*
+    /**
      * Initializes Arrows. Initially none are visible.
      */
     public void SetUpArrows()
@@ -41,7 +38,7 @@ public class ArrowHandler : MonoBehaviour
         HideLeftArrow();
     }
 
-    /*
+    /**
      * Up Arrow Visible.
     */
     public void ShowUpArrow()
@@ -49,7 +46,7 @@ public class ArrowHandler : MonoBehaviour
         upArrowObject.SetActive(true);
     }
 
-    /*
+    /**
      * Right Arrow Visible.
     */
     public void ShowRightArrow()
@@ -57,7 +54,7 @@ public class ArrowHandler : MonoBehaviour
         rightArrowObject.SetActive(true);
     }
 
-    /*
+    /**
      * Left Arrow Visible.
     */
     public void ShowLeftArrow()
@@ -65,7 +62,7 @@ public class ArrowHandler : MonoBehaviour
         leftArrowObject.SetActive(true);
     }
 
-    /*
+    /**
      * Up Arrow Invisible.
      */
     public void HideUpArrow()
@@ -73,7 +70,7 @@ public class ArrowHandler : MonoBehaviour
         upArrowObject.SetActive(false);
     }
 
-    /*
+    /**
      * Right Arrow Invisible.
      */
     public void HideRightArrow()
@@ -81,7 +78,7 @@ public class ArrowHandler : MonoBehaviour
         rightArrowObject.SetActive(false);
     }
 
-    /*
+    /**
      * Left Arrow Invisible.
      */
     public void HideLeftArrow()

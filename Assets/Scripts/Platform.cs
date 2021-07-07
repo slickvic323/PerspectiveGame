@@ -10,12 +10,12 @@ public class Platform : MonoBehaviour
     /*
      * Stores the maximum number of times that a ball can bounce on a platform.
      */
-    private int MAX_NUM_BOUNCES = 6;
+    private static readonly int MAX_NUM_BOUNCES = 5;
 
     /*
      * Stores the number of times remaining that a ball can bounce on a platform.
     */
-    private int numBouncesRemaining = 6; // Really are 5 bounces total, but subtracts right off the first bounce
+    private int numBouncesRemaining = MAX_NUM_BOUNCES; // Really are MAX_NUM_BOUNCES - 1 bounces total, but subtracts right off the first bounce
 
     private bool tapped;
 

@@ -40,61 +40,169 @@ public class EntirePlane : MonoBehaviour
      */
     private bool ballExists = false;
 
+    /**
+     * Pattern Animation Speed value (Normal)
+     */
     private readonly float NORMAL_ANIMATION_SPEED = 1.2f;
+
+    /** 
+     * Pattern Animation Speed value (Fast)
+     */
     private readonly float FAST_FORWARD_ANIMATION_SPEED = 0.4f;
 
+    /**
+     * Actual Pattern Animation Speed
+     */
     private float animationSpeed;
 
-    float beforeAngle, smallerAngle, biggerAngle;
+    /**
+     * Camera Angles
+     */
+    private float beforeAngle, smallerAngle, biggerAngle;
 
-    ArrowHandler arrowHandler;
+    /**
+     * Arrow Handler Instance
+     */
+    private ArrowHandler arrowHandler;
 
+    /**
+     * Previous Y Velocity
+     */
     private float lastYVelocity = 0f;
 
+    /**
+     * Has the first bounce occurred yet
+     */
     private bool firstBounceYet = false;
 
+    /**
+     * Velocity of the first bounce
+     */
     private float firstBounceVelocity = 0f;
 
+    /**
+     * Is the ball currently changing platforms
+     */
     private bool changingPlatforms = false;
+
+    /**
+     * Is the ball going to begin changing platforms on the next bounce
+     */
     private bool changePlatformsOnNextBounce = false;
 
+    /**
+     * What Platform is ball moving to
+     */
     private Vector3 endPlatform;
 
+    /**
+     * Pattern Instance
+     */
     private Pattern pattern;
 
+    /**
+     * Index of pattern progression that ball is on.
+     */
     private int ballMovingAlongPatternIndex;
 
+    /**
+     * Is the ball going to land on the wrong platform
+     */
     private bool ballWillLandOnWrongPlatform;
 
+    /**
+     * Is the ball going to fall of the edge
+     */
     private bool ballWillFallOffEdge;
 
+    /**
+     * Was a valid move made
+     */
     private bool validMoveMade;
 
+    /**
+     * Previous move ball made
+     */
     private int previousMove;
 
+    /**
+     * Main Camera Instance
+     */
     private Camera mainCamera;
 
+    /**
+     * Camera Data
+     */
     private CameraInfo cameraInfo;
 
-    private MovementUI movementUI;
-
+    /**
+     * Camera's Initial Position
+     */
     private Vector3 cameraStartPosition;
+
+    /**
+     * Camera's Final Position
+     */
     private Vector3 cameraEndPosition;
-    private float cameraSpeed = 5.0f;
+
+    /**
+     * Speed at which camera moves
+     */
+    private readonly float cameraSpeed = 5.0f;
+
+    /**
+     * The initial time of camera move
+     */
     private float startTime;
+
+    /**
+     * Distance camera moves
+     */
     private float journeyLength;
 
+    /**
+     * End Angle of camera
+     */
     private float endAngle;
 
+    /**
+     * Is the ball on a new platform
+     */
     private bool ballOnNewPlatform;
 
+    /**
+     * Ball landing on final platform of pattern
+     */
+    private bool ballWillLandOnFinalPlatform;
+
+    /**
+     * X Distance between one platform to another
+     */
     private float PLATFORM_GRID_X_DISTANCE;
+
+    /**
+     * Z Distance betwen one platform to another
+     */
     private float PLATFORM_GRID_Z_DISTANCE;
 
+    /**
+     * Is camera in aerial View
+     */
     private bool aerialView;
 
+    /**
+     * Is Pattern animation showing
+     */
     private bool showingPatternAnimation = false;
+
+    /**
+     * The previous time that the pattern revealed the subsequent platform.
+     */
     private float patternAnimationPrevTriggerTime;
+
+    /**
+     * Index holding the pattern platform number currently.
+     */
     private int patternAnimationIndex;
 
     // Moving camera from aerial to beginning
@@ -105,8 +213,6 @@ public class EntirePlane : MonoBehaviour
     private float journeyLengthAerialTransition;
     private bool transitioningFromAerialToInitial = false;
 
-    // Aerial view of platform grid
-
     GameObject myCanvas;
     GameObject levelCompleteUI;
     GameObject levelFailUI;
@@ -116,6 +222,8 @@ public class EntirePlane : MonoBehaviour
     GameObject livesRemainingUI;
     GameObject fastForwardButton;
     GameObject quitGameUI;
+    AudioManager audioManager;
+
     Text levelCompleteText;
     Text levelFailText;
     Text gameFailText;
@@ -123,7 +231,6 @@ public class EntirePlane : MonoBehaviour
     Text pointsText;
     Text livesText;
 
-    private bool ballWillLandOnFinalPlatform;
 
     // Start is called before the first frame update
     void Start()
@@ -147,9 +254,6 @@ public class EntirePlane : MonoBehaviour
         arrowHandler = new ArrowHandler();
         arrowHandler.SetUpArrows();
         mySwipeDetector = new SwipeDetector(arrowHandler);
-
-        movementUI = new MovementUI();
-        movementUI.InitializeMovementUI();
 
         myCanvas = GameObject.FindWithTag("InGameCanvas");
         if (myCanvas != null)
@@ -198,6 +302,8 @@ public class EntirePlane : MonoBehaviour
 
             quitGameUI = GameObject.Find("QuitGameUI");
             quitGameUI.SetActive(false);
+
+            audioManager = FindObjectOfType<AudioManager>();
         }
 
 
@@ -242,6 +348,9 @@ public class EntirePlane : MonoBehaviour
         }
     }
 
+    /**
+     * Create platforms and pattern for those platforms
+     */
     void CreatePlatforms()
     {
         platforms = new List<List<Platform>>();
@@ -288,6 +397,9 @@ public class EntirePlane : MonoBehaviour
         patternAnimationIndex = 0;
     }
 
+    /**
+     * Handles all ball bouncing events
+     */
     private void ProperBounce()
     {
         // Check if Ball is going to fall off edge of plane
@@ -303,12 +415,14 @@ public class EntirePlane : MonoBehaviour
         {
             firstBounceVelocity = lastYVelocity * -1f;
             firstBounceYet = true;
+            audioManager.Play("Pattern_Single_Note", 1f + ((ballMovingAlongPatternIndex-1) * 0.1f));
         }
 
         if (firstBounceYet && lastYVelocity < 0 && ball.GetRigidbody().velocity.y > 0)
         {
             if (GameManager.GetMode() == GameManager.Mode.gameplay)
             {
+                audioManager.Play("Pattern_Single_Note", 1f + ((ballMovingAlongPatternIndex - 1) * 0.1f));
                 // Check if there are bounces remaining on this platform
                 if (platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].GetNumBouncesRemaining() > 0)
                 {
@@ -500,6 +614,9 @@ public class EntirePlane : MonoBehaviour
         }
     }
 
+    /**
+     * Begin having ball switch platforms
+     */
     private void StartChangingPlatforms(Vector3 startPlatform, Vector3 endPlatform)
     {
         // Change x or z velocity so that the ball is at the next platform's x, z coordinates when it lands for next bounce
@@ -533,6 +650,9 @@ public class EntirePlane : MonoBehaviour
 
     }
 
+    /**
+     * Should ball stop moving in X or Z directions.
+     */
     private void CheckIfShouldStopMoving()
     {
         bool movingInX = false;
@@ -626,7 +746,10 @@ public class EntirePlane : MonoBehaviour
         // Check if moving in z direction
     }
 
-    void CreateBall()
+    /**
+     * Creates Ball Object
+     */
+    private void CreateBall()
     {
         ball = new Ball();
         ballExists = true;
@@ -651,6 +774,9 @@ public class EntirePlane : MonoBehaviour
         transitioningFromAerialToInitial = true;
     }
 
+    /**
+     * Update the camera
+     */
     private void UpdateThirdPersonCamera()
     {
         // Always look at the ball (Don't move along the Y-Axis
@@ -701,6 +827,9 @@ public class EntirePlane : MonoBehaviour
         }
     }
 
+    /**
+     * Takes care of all camera data when transition begins
+     */
     private void StartCameraTransition(int ballMovingDirection)
     {
         cameraInfo.SetMode(CameraInfo.ROTATE_MOVE);
@@ -731,18 +860,25 @@ public class EntirePlane : MonoBehaviour
         biggerAngle = Mathf.Max(beforeAngle, endAngle);
     }
 
-    // Returns the total number of platforms in the x direction
+    /**
+     * Returns the total number of platforms in the x direction
+     */
     public int GetNumberPlatformsX()
     {
         return numberPlatformsX;
     }
 
-    // Returns the total number of platforms in the z direction
+    /**
+     * Returns the total number of platforms in the z direction
+     */
     public int GetNumberPlatformsZ()
     {
         return numberPlatformsZ;
     }
 
+    /**
+     * Calculates Camera's ending position based on current position
+     */
     public void CalculateCameraEndPosition()
     {
         if (cameraInfo.GetDirectionFacing() == CameraInfo.FACING_POS_Z)
@@ -766,6 +902,9 @@ public class EntirePlane : MonoBehaviour
         startTime = Time.time;
     }
 
+    /**
+     * Angle Converter - prevents angles less than 0 or greater than 360
+     */
     private float ZeroTo360 (float originalVal)
     {
         // Zero inclusive 360 Exclusive
@@ -784,6 +923,9 @@ public class EntirePlane : MonoBehaviour
         return newVal;
     }
 
+    /**
+     * Handles swipes
+     */
     private void OnGUI()
     {
         if (GameManager.GetMode() == GameManager.Mode.gameplay)
@@ -852,6 +994,9 @@ public class EntirePlane : MonoBehaviour
         }
     }
 
+    /**
+     * Ensures that a valid move was made
+     */
     public void CheckIfValidMove()
     {
         validMoveMade = false;
@@ -895,6 +1040,9 @@ public class EntirePlane : MonoBehaviour
         }
     }
 
+    /**
+     * Checks if made a correct final move
+     */
     public void CheckIfMadeCorrectFinalMove(int currentX, int currentZ)
     {
         List<Platform> patternList = pattern.GetPattern();
@@ -914,6 +1062,9 @@ public class EntirePlane : MonoBehaviour
 
     }
 
+    /**
+     * Handles a ball bouncing on a platform for the first time
+     */
     public void HandleNewPlatformBounce()
     {
         // Set New Platform to have ball on platform
@@ -923,12 +1074,18 @@ public class EntirePlane : MonoBehaviour
         platforms[ball.GetPreviousPlatformX()][ball.GetPreviousPlatformZ()].SetBallOnPlatform(false, ballWillLandOnWrongPlatform);
     }
 
+    /**
+     * Moves camera to aerial view
+     */
     public void PutCamInAerialView()
     {
         mainCamera.transform.position = new Vector3((numberPlatformsX /2f) - 0.5f, PLATFORM_GRID_X_DISTANCE + (0.6f*numberPlatformsX) , numberPlatformsZ / 2f - 0.5f);
         mainCamera.transform.eulerAngles = new Vector3(90f, 0f, 0f);
     }
 
+    /**
+     * Moves camera from aerial view to 3rd person ball view for gameplay
+     */
     public void MoveCamFromAerialToStart()
     {
         // Deals with camera's position
@@ -954,6 +1111,9 @@ public class EntirePlane : MonoBehaviour
         }
     }
 
+    /**
+     * Called if ball made incorrect move
+     */
     public void BallMadeWrongMove()
     {
         // Set all of the platforms' colors to red
@@ -998,6 +1158,17 @@ public class EntirePlane : MonoBehaviour
         GameManager.SetMode(GameManager.Mode.failed_level);
     }
 
+    /**
+     * Plays button press sound
+     */
+    public void PlayButtonPressSound()
+    {
+        audioManager.Play("Button_Press", 0.5f);
+    }
+
+    /**
+     * Called when beginning to show pattern animation
+     */
     public void ShowPatternAnimation()
     {
         float currentTime = Time.time;
@@ -1007,6 +1178,15 @@ public class EntirePlane : MonoBehaviour
             List<Platform> patternList = pattern.GetPattern();
             if (patternAnimationIndex < patternList.Count)
             {
+                if (patternList.Count <= 40)
+                {
+                    audioManager.Play("Pattern_Single_Note", 1f + (patternAnimationIndex * 0.1f));
+
+                }
+                else
+                {
+                    audioManager.Play("Pattern_Single_Note", 1f + (patternAnimationIndex * (4f/patternList.Count)));
+                }
                 Platform nextPlatformInAnimation = patternList[patternAnimationIndex];
                 nextPlatformInAnimation.GetGameObject().GetComponent<Renderer>().material.color = Color.blue;
                 patternAnimationIndex++;
@@ -1036,6 +1216,9 @@ public class EntirePlane : MonoBehaviour
         }
     }
 
+    /**
+     * Show Completed Level GUI
+     */
     public void ShowCompletedLevelText()
     {
         // Show the Level Complete Text
@@ -1047,6 +1230,9 @@ public class EntirePlane : MonoBehaviour
         GameManager.SetMode(GameManager.Mode.completed_level);
     }
 
+    /**
+     * Called when fast forward button is pressed. Speeds up pattern animation
+     */
     public void FastForwardButtonPressed()
     {
         if (animationSpeed == NORMAL_ANIMATION_SPEED)
@@ -1055,6 +1241,9 @@ public class EntirePlane : MonoBehaviour
         }
     }
 
+    /**
+     * Called when fast forward button is released. Return pattern animation speed to normal
+     */
     public void FastForwardButtonReleased()
     {
         if (animationSpeed == FAST_FORWARD_ANIMATION_SPEED)
@@ -1063,6 +1252,9 @@ public class EntirePlane : MonoBehaviour
         }
     }
 
+    /**
+     * Quit game button pressed.
+     */
     public void QuitGameButtonPressed()
     {
         if (!quitGameUI.active)
@@ -1075,8 +1267,12 @@ public class EntirePlane : MonoBehaviour
         }
     }
 
+    /**
+     * Closes Quit Game GUI
+     */
     public void DoNotQuit()
     {
         quitGameUI.SetActive(false);
     }
 }
+ 
