@@ -12,6 +12,8 @@ TagManager:
   - FastForwardAnimationButton
   - QuitGame
   - AudioManager
+  - ToggleSoundEffects
+  - ToggleMusic
   layers:
   - Default
   - TransparentFX

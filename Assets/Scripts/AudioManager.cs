@@ -5,6 +5,11 @@ using System;
 public class AudioManager : MonoBehaviour
 {
 
+    private bool soundEffectsEnabled;
+
+    private bool musicEnabled;
+
+
     /**
      * Stores array of available sounds to play.
      */
@@ -29,8 +34,12 @@ public class AudioManager : MonoBehaviour
             sound.source = gameObject.AddComponent<AudioSource>();
             sound.source.volume = sound.volume;
             sound.source.pitch = sound.pitch;
+            sound.source.loop = sound.loop;
             sound.source.clip = sound.clip;
         }
+
+        RefreshSoundEffectsEnabled();
+        RefreshMusicEnabled();
     }
 
     /**
@@ -38,9 +47,36 @@ public class AudioManager : MonoBehaviour
      */
     public void Play(string name, float pitch)
     {
+        bool playSound = true;
+        // If a sound effect noise, check if sound effects are enabled
+        if (name.Equals("Button_Press")
+            || name.Equals("Pattern_Single_Note"))
+        {
+            if (!soundEffectsEnabled)
+            {
+                playSound = false;
+            }
+        }
+        else if (name.Equals("Menu_Music"))
+        {
+            if (!musicEnabled)
+            {
+                playSound = false;
+            }
+        }
+
+        if (playSound)
+        {
+            Sound s = Array.Find(sounds, sound => sound.name == name);
+            s.source.pitch = pitch;
+            s.source.Play();
+        }
+    }
+
+    public void Stop(string name)
+    {
         Sound s = Array.Find(sounds, sound => sound.name == name);
-        s.source.pitch = pitch;
-        s.source.Play();
+        s.source.Stop();
     }
 
     /**
@@ -48,7 +84,26 @@ public class AudioManager : MonoBehaviour
      */
     public void ButtonPress()
     {
-        Sound s = Array.Find(sounds, sound => sound.name == "Button_Press");
-        s.source.Play();
+        if (soundEffectsEnabled)
+        {
+            Sound s = Array.Find(sounds, sound => sound.name == "Button_Press");
+            s.source.Play();
+        }
+    }
+
+    public void RefreshSoundEffectsEnabled()
+    {
+        soundEffectsEnabled = (PlayerPrefs.GetInt("SoundEffectsEnabled", 1) == 1);
+    }
+
+    public void RefreshMusicEnabled()
+    {
+        musicEnabled = (PlayerPrefs.GetInt("MusicEnabled", 1) == 1);
+    }
+
+    public void SetVolume(string name, float volume)
+    {
+        Sound s = Array.Find(sounds, sound => sound.name == name);
+        s.volume = volume;
     }
 }

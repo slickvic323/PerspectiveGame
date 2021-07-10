@@ -26,6 +26,8 @@ public class Sound
     [Range(0.1f, 4f)]
     public float pitch;
 
+    public bool loop;
+
     /**
      * Stores Audio Source
      */
