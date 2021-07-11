@@ -420,9 +420,9 @@ public class EntirePlane : MonoBehaviour
 
         if (firstBounceYet && lastYVelocity < 0 && ball.GetRigidbody().velocity.y > 0)
         {
+            audioManager.Play("Pattern_Single_Note", 1f + ((ballMovingAlongPatternIndex - 1) * 0.1f));
             if (GameManager.GetMode() == GameManager.Mode.gameplay)
             {
-                audioManager.Play("Pattern_Single_Note", 1f + ((ballMovingAlongPatternIndex - 1) * 0.1f));
                 // Check if there are bounces remaining on this platform
                 if (platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].GetNumBouncesRemaining() > 0)
                 {
@@ -961,36 +961,36 @@ public class EntirePlane : MonoBehaviour
                 mySwipeDetector.rightSwipe = false;
             }
 
-            //if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
-            //{
-            //    Debug.Log("Clicked");
-            //    if (!changingPlatforms)
-            //    {
-            //        changePlatformsOnNextBounce = true;
-            //        ball.SetDirectionMoving(Ball.MOVING_FORWARD);
-            //        cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
-            //    }
-            //}
+            if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
+            {
+                Debug.Log("Clicked");
+                if (!changingPlatforms)
+                {
+                    changePlatformsOnNextBounce = true;
+                    ball.SetDirectionMoving(Ball.MOVING_FORWARD);
+                    cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
+                }
+            }
 
-            //if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
-            //{
-            //    Debug.Log("Clicked");
-            //    if (!changingPlatforms)
-            //    {
-            //        changePlatformsOnNextBounce = true;
-            //        ball.SetDirectionMoving(Ball.MOVING_RIGHT);
-            //    }
-            //}
+            if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
+            {
+                Debug.Log("Clicked");
+                if (!changingPlatforms)
+                {
+                    changePlatformsOnNextBounce = true;
+                    ball.SetDirectionMoving(Ball.MOVING_RIGHT);
+                }
+            }
 
-            //if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
-            //{
-            //    Debug.Log("Clicked");
-            //    if (!changingPlatforms)
-            //    {
-            //        changePlatformsOnNextBounce = true;
-            //        ball.SetDirectionMoving(Ball.MOVING_LEFT);
-            //    }
-            //}
+            if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
+            {
+                Debug.Log("Clicked");
+                if (!changingPlatforms)
+                {
+                    changePlatformsOnNextBounce = true;
+                    ball.SetDirectionMoving(Ball.MOVING_LEFT);
+                }
+            }
         }
     }
 
@@ -1107,7 +1107,7 @@ public class EntirePlane : MonoBehaviour
         if (transform.position == cameraEndPositionAerial)
         {
             transitioningFromAerialToInitial = false;
-
+            GameManager.SetMode(GameManager.Mode.gameplay);
         }
     }
 
@@ -1198,7 +1198,6 @@ public class EntirePlane : MonoBehaviour
                 showingPatternAnimation = false;
                 animationSpeed = NORMAL_ANIMATION_SPEED;
                 fastForwardButton.SetActive(false);
-                GameManager.SetMode(GameManager.Mode.gameplay);
 
                 // Create the Ball once the pattern animation has finished
                 CreateBall();
