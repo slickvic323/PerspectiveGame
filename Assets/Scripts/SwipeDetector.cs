@@ -43,10 +43,10 @@ public class SwipeDetector : MonoBehaviour
     /**
      * Constructor
      */
-    public SwipeDetector (ArrowHandler arrowHandler)
-    {
-        this.arrowHandler = arrowHandler;
-    }
+    //public SwipeDetector (ArrowHandler arrowHandler)
+    //{
+    //    this.arrowHandler = arrowHandler;
+    //}
 
     // Start is called before the first frame update
     void Start()
@@ -86,6 +86,11 @@ public class SwipeDetector : MonoBehaviour
         }
 
         CheckGameDetection();
+    }
+
+    public void SetArrowHandler(ArrowHandler arrowHandler)
+    {
+        this.arrowHandler = arrowHandler;
     }
 
     /*

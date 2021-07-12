@@ -245,15 +245,19 @@ public class EntirePlane : MonoBehaviour
         }
 
         mainCamera = Camera.main;
-        cameraInfo = new CameraInfo();
+        //cameraInfo = new CameraInfo();
+        cameraInfo = gameObject.AddComponent(typeof(CameraInfo)) as CameraInfo;
         aerialView = true;
         previousMove = 0;
         cameraInfo.SetDirectionFacing(CameraInfo.FACING_POS_Z);
         cameraInfo.SetMode(CameraInfo.STAGNANT);
 
-        arrowHandler = new ArrowHandler();
+        //arrowHandler = new ArrowHandler();
+        arrowHandler = gameObject.AddComponent(typeof(ArrowHandler)) as ArrowHandler;
         arrowHandler.SetUpArrows();
-        mySwipeDetector = new SwipeDetector(arrowHandler);
+        //mySwipeDetector = new SwipeDetector(arrowHandler);
+        mySwipeDetector = gameObject.AddComponent(typeof(SwipeDetector)) as SwipeDetector;
+        mySwipeDetector.SetArrowHandler(arrowHandler);
 
         myCanvas = GameObject.FindWithTag("InGameCanvas");
         if (myCanvas != null)
@@ -402,6 +406,7 @@ public class EntirePlane : MonoBehaviour
      */
     private void ProperBounce()
     {
+        Debug.Log(lastYVelocity);
         // Check if Ball is going to fall off edge of plane
         if (ballWillFallOffEdge)
         {
@@ -414,11 +419,11 @@ public class EntirePlane : MonoBehaviour
         if (!firstBounceYet && lastYVelocity < 0 && ball.GetRigidbody().velocity.y > 0)
         {
             firstBounceVelocity = lastYVelocity * -1f;
+            ball.GetRigidbody().velocity = new Vector3(ball.GetRigidbody().velocity.x, firstBounceVelocity, ball.GetRigidbody().velocity.z);
             firstBounceYet = true;
             audioManager.Play("Pattern_Single_Note", 1f + ((ballMovingAlongPatternIndex-1) * 0.1f));
         }
-
-        if (firstBounceYet && lastYVelocity < 0 && ball.GetRigidbody().velocity.y > 0)
+        else if (firstBounceYet && lastYVelocity < 0 && ball.GetRigidbody().velocity.y > 0)
         {
             audioManager.Play("Pattern_Single_Note", 1f + ((ballMovingAlongPatternIndex - 1) * 0.1f));
             if (GameManager.GetMode() == GameManager.Mode.gameplay)
@@ -443,8 +448,8 @@ public class EntirePlane : MonoBehaviour
                 numBouncesLeftText.text = "";
             }
 
-
             ball.GetRigidbody().velocity = new Vector3(ball.GetRigidbody().velocity.x, firstBounceVelocity, ball.GetRigidbody().velocity.z);
+            Debug.Log(ball.GetRigidbody().velocity);
 
             // Check if made incorrect move
             if (ballWillLandOnWrongPlatform)
@@ -605,6 +610,7 @@ public class EntirePlane : MonoBehaviour
 
             }
         }
+
         lastYVelocity = ball.GetRigidbody().velocity.y;
 
         if (changingPlatforms)
@@ -1071,7 +1077,10 @@ public class EntirePlane : MonoBehaviour
         platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].SetBallOnPlatform(true, ballWillLandOnWrongPlatform);
 
         // Set previous platform the ball was on to false for ballOnPlatform attribute
-        platforms[ball.GetPreviousPlatformX()][ball.GetPreviousPlatformZ()].SetBallOnPlatform(false, ballWillLandOnWrongPlatform);
+        if (ball.GetPreviousPlatformX() != -1 && ball.GetPreviousPlatformZ() != -1)
+        {
+            platforms[ball.GetPreviousPlatformX()][ball.GetPreviousPlatformZ()].SetBallOnPlatform(false, ballWillLandOnWrongPlatform);
+        }
     }
 
     /**
@@ -1256,7 +1265,7 @@ public class EntirePlane : MonoBehaviour
      */
     public void QuitGameButtonPressed()
     {
-        if (!quitGameUI.active)
+        if (!quitGameUI.activeSelf)
         {
             quitGameUI.SetActive(true);
         }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Pattern : MonoBehaviour
+public class Pattern
 {
     /**
      * Stores the ArrayList of Platforms in the order of the pattern.
@@ -84,18 +84,6 @@ public class Pattern : MonoBehaviour
      * Boolean representing if platform can be added.
      */
     private bool canAddPlatform;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     /**
      * Creates pattern when given the number of x and z platforms.

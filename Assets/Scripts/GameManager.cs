@@ -324,4 +324,9 @@ public static class GameManager
         }
     }
 
+    public static int GetCurrentLevelNumber()
+    {
+        return currentLevelNumber;
+    }
+
 }

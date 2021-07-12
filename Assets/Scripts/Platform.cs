@@ -5,7 +5,7 @@ using UnityEngine;
 /*
  * Contains Logic for a single platform in the game.
 */
-public class Platform : MonoBehaviour
+public class Platform
 {
     /*
      * Stores the maximum number of times that a ball can bounce on a platform.
@@ -36,19 +36,13 @@ public class Platform : MonoBehaviour
     private int xIndex;
     private int zIndex;
 
-    // Start is called before the first frame update
-    void Start()
+    // Constructor
+    public Platform()
     {
         tapped = false;
         litUp = false;
         ballOnPlatform = false;
         inPattern = false;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     public int GetNumBouncesRemaining ()

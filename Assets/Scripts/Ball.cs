@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 /*
  */
-public class Ball : MonoBehaviour
+public class Ball
 {
     /**
      * Constant Values representing Direction Ball is moving.
@@ -24,7 +24,7 @@ public class Ball : MonoBehaviour
     /**
      * Sphere Game Object representing Ball.
      */
-    private new GameObject gameObject;
+    private GameObject gameObject;
 
     /**
      * RigidBody Physics element for the ball.
@@ -66,8 +66,7 @@ public class Ball : MonoBehaviour
      */
     private int directionFacing;
 
-    // Start is called before the first frame update
-    void Start()
+    public Ball()
     {
         whichPlatformOnX = -1;
         whichPlatformOnZ = -1;
@@ -76,11 +75,6 @@ public class Ball : MonoBehaviour
 
         directionMoving = NOT_MOVING;
         directionFacing = FACING_POS_Z;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
     }
 
     /**
