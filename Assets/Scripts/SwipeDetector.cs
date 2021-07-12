@@ -8,6 +8,11 @@ public class SwipeDetector : MonoBehaviour
     public bool detectSwipeOnlyAfterRelease = false;
 
     /**
+     * Are we checking swipes periodically
+     */
+    private bool swipeDetectorActivated;
+
+    /**
      * The Swipe threshold is the amount that user must move finger on screen to record a swipe
      */
     public readonly float SWIPE_THRESHOLD = 20f;
@@ -54,38 +59,42 @@ public class SwipeDetector : MonoBehaviour
         upSwipe = false;
         leftSwipe = false;
         rightSwipe = false;
+        swipeDetectorActivated = false;
     }
 
     // Update is called once per frame
     public void Update()
     {
-        foreach (Touch touch in Input.touches)
+        if (swipeDetectorActivated)
         {
-            if (touch.phase == TouchPhase.Began)
+            foreach (Touch touch in Input.touches)
             {
-                fingerUp = touch.position;
-                fingerDown = touch.position;
-            }
+                if (touch.phase == TouchPhase.Began)
+                {
+                    fingerUp = touch.position;
+                    fingerDown = touch.position;
+                }
 
-            // Detects Swipe while finger is still moving
-            if (touch.phase == TouchPhase.Moved)
-            {
-                if (!detectSwipeOnlyAfterRelease)
+                // Detects Swipe while finger is still moving
+                if (touch.phase == TouchPhase.Moved)
+                {
+                    if (!detectSwipeOnlyAfterRelease)
+                    {
+                        fingerDown = touch.position;
+                        CheckSwipe();
+                    }
+                }
+
+                // Detects swipe after finger is released
+                if (touch.phase == TouchPhase.Ended)
                 {
                     fingerDown = touch.position;
                     CheckSwipe();
                 }
             }
 
-            // Detects swipe after finger is released
-            if (touch.phase == TouchPhase.Ended)
-            {
-                fingerDown = touch.position;
-                CheckSwipe();
-            }
+            CheckGameDetection();
         }
-
-        CheckGameDetection();
     }
 
     public void SetArrowHandler(ArrowHandler arrowHandler)
@@ -218,5 +227,10 @@ public class SwipeDetector : MonoBehaviour
                 rightSwipe = false;
             }
         }
+    }
+
+    public void SetSwipeDetectorActivated(bool activated)
+    {
+        swipeDetectorActivated = activated;
     }
 }

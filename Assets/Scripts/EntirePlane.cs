@@ -406,7 +406,6 @@ public class EntirePlane : MonoBehaviour
      */
     private void ProperBounce()
     {
-        Debug.Log(lastYVelocity);
         // Check if Ball is going to fall off edge of plane
         if (ballWillFallOffEdge)
         {
@@ -449,7 +448,6 @@ public class EntirePlane : MonoBehaviour
             }
 
             ball.GetRigidbody().velocity = new Vector3(ball.GetRigidbody().velocity.x, firstBounceVelocity, ball.GetRigidbody().velocity.z);
-            Debug.Log(ball.GetRigidbody().velocity);
 
             // Check if made incorrect move
             if (ballWillLandOnWrongPlatform)
@@ -967,36 +965,36 @@ public class EntirePlane : MonoBehaviour
                 mySwipeDetector.rightSwipe = false;
             }
 
-            if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
-            {
-                Debug.Log("Clicked");
-                if (!changingPlatforms)
-                {
-                    changePlatformsOnNextBounce = true;
-                    ball.SetDirectionMoving(Ball.MOVING_FORWARD);
-                    cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
-                }
-            }
+            //if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
+            //{
+            //    Debug.Log("Clicked");
+            //    if (!changingPlatforms)
+            //    {
+            //        changePlatformsOnNextBounce = true;
+            //        ball.SetDirectionMoving(Ball.MOVING_FORWARD);
+            //        cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
+            //    }
+            //}
 
-            if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
-            {
-                Debug.Log("Clicked");
-                if (!changingPlatforms)
-                {
-                    changePlatformsOnNextBounce = true;
-                    ball.SetDirectionMoving(Ball.MOVING_RIGHT);
-                }
-            }
+            //if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
+            //{
+            //    Debug.Log("Clicked");
+            //    if (!changingPlatforms)
+            //    {
+            //        changePlatformsOnNextBounce = true;
+            //        ball.SetDirectionMoving(Ball.MOVING_RIGHT);
+            //    }
+            //}
 
-            if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
-            {
-                Debug.Log("Clicked");
-                if (!changingPlatforms)
-                {
-                    changePlatformsOnNextBounce = true;
-                    ball.SetDirectionMoving(Ball.MOVING_LEFT);
-                }
-            }
+            //if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
+            //{
+            //    Debug.Log("Clicked");
+            //    if (!changingPlatforms)
+            //    {
+            //        changePlatformsOnNextBounce = true;
+            //        ball.SetDirectionMoving(Ball.MOVING_LEFT);
+            //    }
+            //}
         }
     }
 
@@ -1117,6 +1115,7 @@ public class EntirePlane : MonoBehaviour
         {
             transitioningFromAerialToInitial = false;
             GameManager.SetMode(GameManager.Mode.gameplay);
+            mySwipeDetector.SetSwipeDetectorActivated(true);
         }
     }
 
@@ -1165,6 +1164,7 @@ public class EntirePlane : MonoBehaviour
 
         GameManager.SetFailedPrevAttempt(true);
         GameManager.SetMode(GameManager.Mode.failed_level);
+        mySwipeDetector.SetSwipeDetectorActivated(false);
     }
 
     /**
@@ -1236,6 +1236,7 @@ public class EntirePlane : MonoBehaviour
             levelCompleteUI.SetActive(true);
         }
         GameManager.SetMode(GameManager.Mode.completed_level);
+        mySwipeDetector.SetSwipeDetectorActivated(false);
     }
 
     /**
