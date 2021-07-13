@@ -15,11 +15,24 @@ public class MainMenu : MonoBehaviour
 
     GameObject optionsMenu;
 
+    Button difficultyButtonEasy, difficultyButtonMedium, difficultyButtonHard;
+
     AudioManager audioManagerInstance;
 
     Sprite toggleOffSprite;
 
     Sprite toggleOnSprite;
+
+    bool firstDifficultyClick;
+
+    private enum DIFFICULTY
+    {
+        EASY,
+        MEDIUM,
+        HARD
+    }
+
+    private int difficultySelected;
 
 
     /**
@@ -34,6 +47,9 @@ public class MainMenu : MonoBehaviour
      */
     private void Start()
     {
+        // This value is true until the difficulty button has been set. Prevents button click sound from playing on startup.
+        firstDifficultyClick = true;
+
         optionsMenu = GameObject.Find("OptionsMenu");
         audioManagerInstance = GameObject.FindWithTag("AudioManager").GetComponent<AudioManager>();
         audioManagerInstance.Play("Menu_Music", 1);
@@ -44,6 +60,43 @@ public class MainMenu : MonoBehaviour
         soundEffectsToggleButton = GameObject.FindWithTag("ToggleSoundEffects");
         musicToggleButton = GameObject.FindWithTag("ToggleMusic");
         optionsMenu.SetActive(false);
+
+
+        difficultyButtonEasy = GameObject.Find("DifficultyButton(Easy)").GetComponent<Button>();
+        difficultyButtonMedium = GameObject.Find("DifficultyButton(Medium)").GetComponent<Button>();
+        difficultyButtonHard = GameObject.Find("DifficultyButton(Hard)").GetComponent<Button>();
+
+        difficultySelected = PlayerPrefs.GetInt("Difficulty", (int)DIFFICULTY.EASY);
+        switch(difficultySelected)
+        {
+            case ((int)DIFFICULTY.EASY):
+                {
+                    ClickDifficultyButtonEasy();
+                    break;
+                }
+            case ((int)DIFFICULTY.MEDIUM):
+                {
+                    ClickDifficultyButtonMedium();
+                    break;
+                }
+            case ((int)DIFFICULTY.HARD):
+                {
+                    ClickDifficultyButtonHard();
+                    break;
+                }
+            default:
+                {
+                    ClickDifficultyButtonEasy();
+                    break;
+                }
+        }
+        // Allows button press sound to be played on all subsequent clicks of difficulty buttons
+        firstDifficultyClick = false;
+
+        difficultyButtonEasy.onClick.AddListener(ClickDifficultyButtonEasy);
+        difficultyButtonMedium.onClick.AddListener(ClickDifficultyButtonMedium);
+        difficultyButtonHard.onClick.AddListener(ClickDifficultyButtonHard);
+
         FillInHighScoreText();
     }
 
@@ -162,6 +215,63 @@ public class MainMenu : MonoBehaviour
                 musicToggleButton.GetComponent<Image>().sprite = toggleOffSprite;
             }
         }
+    }
+
+    public void ClickDifficultyButtonEasy()
+    {
+        if (!firstDifficultyClick)
+        {
+            FindObjectOfType<AudioManager>().Play("Button_Press", 0.5f);
+        }
+        difficultySelected = (int)DIFFICULTY.EASY;
+        PlayerPrefs.SetInt("Difficulty", difficultySelected);
+
+        SelectDifficultyButton(difficultyButtonEasy);
+        DeselectDifficultyButton(difficultyButtonMedium);
+        DeselectDifficultyButton(difficultyButtonHard);
+    }
+
+    public void ClickDifficultyButtonMedium()
+    {
+        if (!firstDifficultyClick)
+        {
+            FindObjectOfType<AudioManager>().Play("Button_Press", 0.5f);
+        }
+        difficultySelected = (int)DIFFICULTY.MEDIUM;
+        PlayerPrefs.SetInt("Difficulty", difficultySelected);
+
+        DeselectDifficultyButton(difficultyButtonEasy);
+        SelectDifficultyButton(difficultyButtonMedium);
+        DeselectDifficultyButton(difficultyButtonHard);
+
+    }
+
+    public void ClickDifficultyButtonHard()
+    {
+        if (!firstDifficultyClick)
+        {
+            FindObjectOfType<AudioManager>().Play("Button_Press", 0.5f);
+        }
+        difficultySelected = (int)DIFFICULTY.HARD;
+        PlayerPrefs.SetInt("Difficulty", difficultySelected);
+
+        DeselectDifficultyButton(difficultyButtonEasy);
+        DeselectDifficultyButton(difficultyButtonMedium);
+        SelectDifficultyButton(difficultyButtonHard);
+    }
+
+    private void SelectDifficultyButton(Button selected)
+    {
+        ColorBlock colorBlock = selected.colors;
+        colorBlock.normalColor = new Color(50f / 255f, 220f / 255f, 50f / 255f);
+        selected.colors = colorBlock;
+    }
+
+    private void DeselectDifficultyButton(Button deselected)
+    {
+        ColorBlock colorBlock = deselected.colors;
+        colorBlock.normalColor = new Color(1f, 1f, 1f);
+        deselected.colors = colorBlock;
     }
 
 }
