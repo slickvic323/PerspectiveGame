@@ -23,6 +23,23 @@ public static class GameManager
         pattern_animation_showing
     }
 
+    public enum DIFFICULTY
+    {
+        EASY,
+        MEDIUM,
+        HARD
+    }
+
+    public enum PATTERN_DIRECTION
+    {
+        UP,
+        DOWN,
+        RIGHT,
+        LEFT
+    }
+
+    public static int GAME_DIFFICULTY;
+
     /**
      * Integer - Stores Current Level Number
      */
@@ -54,6 +71,11 @@ public static class GameManager
     private static int numZPlatforms;
 
     /**
+     * Stores the current level's pattern direction
+     */
+    private static int levelPatternDirection;
+
+    /**
      * Stores whether or not the player failed the previous level.
      */
     private static bool failedPreviousAttempt;
@@ -63,7 +85,6 @@ public static class GameManager
      */
     private static List<List<int>> previousPattern;
 
-
     private static Mode mode = Mode.new_game_setup;
 
     /**
@@ -72,6 +93,7 @@ public static class GameManager
     public static void StartNewGame()
     {
         mode = Mode.pattern_animation_showing;
+        GAME_DIFFICULTY = PlayerPrefs.GetInt("Difficulty", (int)DIFFICULTY.EASY);
         numLives = 3;
         currentLevelNumber = 1;
         levelDifficulty = 1;
@@ -79,6 +101,7 @@ public static class GameManager
         failedPreviousAttempt = false;
         previousPattern = null;
         DetermineGridSize();
+        DeterminePatternDirection();
     }
 
     // This sets up a new level, but is continuing an already existing game
@@ -87,13 +110,14 @@ public static class GameManager
         mode = Mode.pattern_animation_showing;
         if (!failedPreviousAttempt)
         {
-            if (levelDifficulty < 7)
+            if (levelDifficulty < 5)
             {
                 levelDifficulty++;
             }
         }
 
         DetermineGridSize();
+        DeterminePatternDirection();
     }
 
     /*
@@ -101,41 +125,129 @@ public static class GameManager
      */
     private static void DetermineGridSize()
     {
-        switch (levelDifficulty)
+        switch (GAME_DIFFICULTY)
         {
-            case (1):
-                numXPlatforms = 3;
-                numZPlatforms = 3;
-                break;
-            case (2):
-                numXPlatforms = 3;
-                numZPlatforms = 4;
-                break;
-            case (3):
-                numXPlatforms = 4;
-                numZPlatforms = 4;
-                break;
-            case (4):
-                numXPlatforms = 4;
-                numZPlatforms = 5;
-                break;
-            case (5):
-                numXPlatforms = 5;
-                numZPlatforms = 5;
-                break;
-            case (6):
-                numXPlatforms = 5;
-                numZPlatforms = 6;
-                break;
-            case (7):
-                numXPlatforms = 6;
-                numZPlatforms = 6;
-                break;
+            case ((int)DIFFICULTY.EASY):
+                {
+                    switch (levelDifficulty)
+                    {
+                        case (1):
+                            numXPlatforms = 3;
+                            numZPlatforms = 3;
+                            break;
+                        case (2):
+                            numXPlatforms = 3;
+                            numZPlatforms = 4;
+                            break;
+                        case (3):
+                            numXPlatforms = 4;
+                            numZPlatforms = 4;
+                            break;
+                        case (4):
+                            numXPlatforms = 4;
+                            numZPlatforms = 5;
+                            break;
+                        case (5):
+                            numXPlatforms = 5;
+                            numZPlatforms = 5;
+                            break;
+                        default:
+                            numXPlatforms = 5;
+                            numZPlatforms = 5;
+                            break;
+                    }
+                    break;
+                }
+            case ((int)DIFFICULTY.MEDIUM):
+                {
+                    switch (levelDifficulty)
+                    {
+                        case (1):
+                            numXPlatforms = 5;
+                            numZPlatforms = 5;
+                            break;
+                        case (2):
+                            numXPlatforms = 5;
+                            numZPlatforms = 6;
+                            break;
+                        case (3):
+                            numXPlatforms = 6;
+                            numZPlatforms = 6;
+                            break;
+                        case (4):
+                            numXPlatforms = 6;
+                            numZPlatforms = 7;
+                            break;
+                        case (5):
+                            numXPlatforms = 7;
+                            numZPlatforms = 7;
+                            break;
+                        default:
+                            numXPlatforms = 7;
+                            numZPlatforms = 7;
+                            break;
+                    }
+                    break;
+                }
+            case ((int)DIFFICULTY.HARD):
+                {
+                    switch (levelDifficulty)
+                    {
+                        case (1):
+                            numXPlatforms = 5;
+                            numZPlatforms = 5;
+                            break;
+                        case (2):
+                            numXPlatforms = 5;
+                            numZPlatforms = 6;
+                            break;
+                        case (3):
+                            numXPlatforms = 6;
+                            numZPlatforms = 6;
+                            break;
+                        case (4):
+                            numXPlatforms = 6;
+                            numZPlatforms = 7;
+                            break;
+                        case (5):
+                            numXPlatforms = 7;
+                            numZPlatforms = 7;
+                            break;
+                        default:
+                            numXPlatforms = 7;
+                            numZPlatforms = 7;
+                            break;
+                    }
+                    break;
+                }
             default:
-                numXPlatforms = 6;
-                numZPlatforms = 6;
-                break;
+                {
+                    Debug.Log("Error with Determining Grid Size. Difficulty not set properly");
+                    break;
+                }
         }
+
+    }
+
+    private static void DeterminePatternDirection()
+    {
+        if (GAME_DIFFICULTY == (int)DIFFICULTY.HARD)
+        {
+            int randInt = (int)Mathf.Floor(Random.Range(0, 2));
+            if (randInt == 0)
+            {
+                levelPatternDirection = (int)PATTERN_DIRECTION.UP;
+            }
+            else
+            {
+                levelPatternDirection = (int)PATTERN_DIRECTION.DOWN;
+            }
+        }
+        else
+        {
+            levelPatternDirection = (int)PATTERN_DIRECTION.UP;
+        }
+
     }
 
     /*
@@ -329,4 +441,8 @@ public static class GameManager
         return currentLevelNumber;
     }
 
+    public static int GetLevelPatternDirection()
+    {
+        return levelPatternDirection;
+    }
 }

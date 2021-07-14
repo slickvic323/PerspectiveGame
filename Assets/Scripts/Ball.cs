@@ -66,7 +66,7 @@ public class Ball
      */
     private int directionFacing;
 
-    public Ball()
+    public Ball(int directionFacing)
     {
         whichPlatformOnX = -1;
         whichPlatformOnZ = -1;
@@ -74,7 +74,7 @@ public class Ball
         previousPlatformZ = -1;
 
         directionMoving = NOT_MOVING;
-        directionFacing = FACING_POS_Z;
+        this.directionFacing = directionFacing;
     }
 
     /**

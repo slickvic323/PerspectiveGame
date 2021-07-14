@@ -249,7 +249,38 @@ public class EntirePlane : MonoBehaviour
         cameraInfo = gameObject.AddComponent(typeof(CameraInfo)) as CameraInfo;
         aerialView = true;
         previousMove = 0;
-        cameraInfo.SetDirectionFacing(CameraInfo.FACING_POS_Z);
+
+        switch (GameManager.GetLevelPatternDirection())
+        {
+            case ((int)GameManager.PATTERN_DIRECTION.UP):
+                {
+                    cameraInfo.SetDirectionFacing(CameraInfo.FACING_POS_Z);
+                    break;
+                }
+            case ((int)GameManager.PATTERN_DIRECTION.DOWN):
+                {
+                    cameraInfo.SetDirectionFacing(CameraInfo.FACING_NEG_Z);
+                    break;
+                }
+            case ((int)GameManager.PATTERN_DIRECTION.RIGHT):
+                {
+                    cameraInfo.SetDirectionFacing(CameraInfo.FACING_POS_X);
+                    break;
+                }
+            case ((int)GameManager.PATTERN_DIRECTION.LEFT):
+                {
+                    cameraInfo.SetDirectionFacing(CameraInfo.FACING_NEG_X);
+                    break;
+                }
+            default:
+                {
+                    Debug.Log("Error with setting Camera Direction Facing");
+                    cameraInfo.SetDirectionFacing(CameraInfo.FACING_POS_Z);
+                    break;
+                }
+
+        }
+
         cameraInfo.SetMode(CameraInfo.STAGNANT);
 
         //arrowHandler = new ArrowHandler();
@@ -375,7 +406,7 @@ public class EntirePlane : MonoBehaviour
         bool createdPattern = false;
         if (!GameManager.GetFailedPrevAttempt())
         {
-            createdPattern = pattern.CreatePattern(platforms, numberPlatformsX, numberPlatformsZ);
+            createdPattern = pattern.CreatePattern(GameManager.GetLevelPatternDirection(), platforms, numberPlatformsX, numberPlatformsZ);
         }
         else
         {
@@ -386,7 +417,7 @@ public class EntirePlane : MonoBehaviour
         // Called from here to prevent possible stack overflow error (Avoiding Recursion from within Pattern class)
         while (!createdPattern)
         {
-            createdPattern = pattern.CreatePattern(platforms, numberPlatformsX, numberPlatformsZ);
+            createdPattern = pattern.CreatePattern(GameManager.GetLevelPatternDirection(), platforms, numberPlatformsX, numberPlatformsZ);
         }
 
         // Save the previous pattern to re-use in case player fails level
@@ -755,7 +786,38 @@ public class EntirePlane : MonoBehaviour
      */
     private void CreateBall()
     {
-        ball = new Ball();
+        int ballDirectionFacing = -1;
+        switch (GameManager.GetLevelPatternDirection())
+        {
+            case ((int)GameManager.PATTERN_DIRECTION.UP):
+                {
+                    ballDirectionFacing = Ball.FACING_POS_Z;
+                    break;
+                }
+            case ((int)GameManager.PATTERN_DIRECTION.DOWN):
+                {
+                    ballDirectionFacing = Ball.FACING_NEG_Z;
+                    break;
+                }
+            case ((int)GameManager.PATTERN_DIRECTION.RIGHT):
+                {
+                    ballDirectionFacing = Ball.FACING_POS_X;
+                    break;
+                }
+            case ((int)GameManager.PATTERN_DIRECTION.LEFT):
+                {
+                    ballDirectionFacing = Ball.FACING_NEG_X;
+                    break;
+                }
+            default:
+                {
+                    Debug.Log("Error with setting Ball Direction Facing");
+                    ballDirectionFacing = Ball.FACING_POS_Z;
+                    break;
+                }
+
+        }
+        ball = new Ball(ballDirectionFacing);
         ballExists = true;
 
         List < Platform > patternList = pattern.GetPattern();
@@ -771,7 +833,35 @@ public class EntirePlane : MonoBehaviour
 
         // Begin moving camera from aerial view to the initial position
         cameraStartPositionAerial = mainCamera.transform.position;
-        cameraEndPositionAerial = new Vector3(ball.GetGameObject().transform.position.x, CameraInfo.Y_FLOAT, ball.GetGameObject().transform.position.z - 2.5f);
+        switch (GameManager.GetLevelPatternDirection())
+        {
+            case ((int)GameManager.PATTERN_DIRECTION.UP):
+                {
+                    cameraEndPositionAerial = new Vector3(ball.GetGameObject().transform.position.x, CameraInfo.Y_FLOAT, ball.GetGameObject().transform.position.z - 2.5f);
+                    break;
+                }
+            case ((int)GameManager.PATTERN_DIRECTION.DOWN):
+                {
+                    cameraEndPositionAerial = new Vector3(ball.GetGameObject().transform.position.x, CameraInfo.Y_FLOAT, ball.GetGameObject().transform.position.z + 2.5f);
+                    break;
+                }
+            case ((int)GameManager.PATTERN_DIRECTION.RIGHT):
+                {
+                    cameraEndPositionAerial = new Vector3(ball.GetGameObject().transform.position.x - 2.5f, CameraInfo.Y_FLOAT, ball.GetGameObject().transform.position.z);
+                    break;
+                }
+            case ((int)GameManager.PATTERN_DIRECTION.LEFT):
+                {
+                    cameraEndPositionAerial = new Vector3(ball.GetGameObject().transform.position.x + 2.5f, CameraInfo.Y_FLOAT, ball.GetGameObject().transform.position.z);
+                    break;
+                }
+            default:
+                {
+                    Debug.Log("Exception with setting camera end position");
+                    break;
+                }
+        }
+        //cameraEndPositionAerial = new Vector3(ball.GetGameObject().transform.position.x, CameraInfo.Y_FLOAT, ball.GetGameObject().transform.position.z - 2.5f);
         startTimeAerialTransition = Time.time;
         journeyLengthAerialTransition = Vector3.Distance(cameraStartPositionAerial, cameraEndPositionAerial);
 
@@ -965,36 +1055,36 @@ public class EntirePlane : MonoBehaviour
                 mySwipeDetector.rightSwipe = false;
             }
 
-            //if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
-            //{
-            //    Debug.Log("Clicked");
-            //    if (!changingPlatforms)
-            //    {
-            //        changePlatformsOnNextBounce = true;
-            //        ball.SetDirectionMoving(Ball.MOVING_FORWARD);
-            //        cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
-            //    }
-            //}
+            if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
+            {
+                Debug.Log("Clicked");
+                if (!changingPlatforms)
+                {
+                    changePlatformsOnNextBounce = true;
+                    ball.SetDirectionMoving(Ball.MOVING_FORWARD);
+                    cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
+                }
+            }
 
-            //if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
-            //{
-            //    Debug.Log("Clicked");
-            //    if (!changingPlatforms)
-            //    {
-            //        changePlatformsOnNextBounce = true;
-            //        ball.SetDirectionMoving(Ball.MOVING_RIGHT);
-            //    }
-            //}
+            if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
+            {
+                Debug.Log("Clicked");
+                if (!changingPlatforms)
+                {
+                    changePlatformsOnNextBounce = true;
+                    ball.SetDirectionMoving(Ball.MOVING_RIGHT);
+                }
+            }
 
-            //if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
-            //{
-            //    Debug.Log("Clicked");
-            //    if (!changingPlatforms)
-            //    {
-            //        changePlatformsOnNextBounce = true;
-            //        ball.SetDirectionMoving(Ball.MOVING_LEFT);
-            //    }
-            //}
+            if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
+            {
+                Debug.Log("Clicked");
+                if (!changingPlatforms)
+                {
+                    changePlatformsOnNextBounce = true;
+                    ball.SetDirectionMoving(Ball.MOVING_LEFT);
+                }
+            }
         }
     }
 
@@ -1102,7 +1192,45 @@ public class EntirePlane : MonoBehaviour
 
         // Deals with camera's angle
         Vector3 angle1 = new Vector3(90f, 0f, 0f);
-        Vector3 angle2 = new Vector3(0f, 0f, 0f);
+        Vector3 angle2;
+        switch (GameManager.GetLevelPatternDirection())
+        {
+            case ((int)GameManager.PATTERN_DIRECTION.UP):
+                {
+                    angle2 = new Vector3(0f, 0f, 0f);
+                    break;
+                }
+            case ((int)GameManager.PATTERN_DIRECTION.DOWN):
+                {
+                    if (ball.GetWhichPlatfromOnX() >= GameManager.GetNumXPlatforms()/2)
+                    {
+                        angle2 = new Vector3(0f, -180f, 0f);
+                    }
+                    else
+                    {
+                        angle2 = new Vector3(0f, 180f, 0f);
+                    }
+                    break;
+                }
+            case ((int)GameManager.PATTERN_DIRECTION.RIGHT):
+                {
+                    angle2 = new Vector3(0f, 90f, 0f);
+                    break;
+                }
+            case ((int)GameManager.PATTERN_DIRECTION.LEFT):
+                {
+                    angle2 = new Vector3(0f, -90f, 0f);
+                    break;
+                }
+            default:
+                {
+                    Debug.Log("Exception with setting camera end position");
+                    angle2 = new Vector3(0f, 0f, 0f);
+                    break;
+                }
+        }
+
+        //Vector3 angle2 = new Vector3(0f, 0f, 0f);
         transform.eulerAngles = Vector3.Lerp(angle1, angle2, fractionOfJourney);
 
         //Vector3 targetPosition = new Vector3(ball.GetGameObject().transform.position.x,
@@ -1198,6 +1326,15 @@ public class EntirePlane : MonoBehaviour
                 }
                 Platform nextPlatformInAnimation = patternList[patternAnimationIndex];
                 nextPlatformInAnimation.GetGameObject().GetComponent<Renderer>().material.color = Color.blue;
+                // If in hard mode, only show a maximum of 3 platforms at a time of the pattern
+                if (GameManager.GAME_DIFFICULTY == (int)GameManager.DIFFICULTY.HARD)
+                {
+                    if (patternAnimationIndex > (patternList.Count/2)-1)
+                    {
+                        Platform backToBlack = patternList[patternAnimationIndex - (patternList.Count/2)];
+                        backToBlack.GetGameObject().GetComponent<Renderer>().material.color = Color.black;
+                    }
+                }
                 patternAnimationIndex++;
                 patternAnimationPrevTriggerTime = Time.time;
             }

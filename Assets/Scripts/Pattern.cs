@@ -21,11 +21,6 @@ public class Pattern
 
     /**
      * Stores the minimum number of possible moves in a pattern for the current plane of platforms.
-     */
-    private int MIN_POSSIBLE_NUM_MOVES;
-
-    /**
-     * Stores the minimum number of possible moves in a pattern for the current plane of platforms.
     */
     private int MAX_POSSIBLE_NUM_MOVES;
 
@@ -90,7 +85,7 @@ public class Pattern
      * Returns true if pattern is valid.
      * Returns false if pattern is invalid.
      */
-    public bool CreatePattern(List<List<Platform>> planeOfPlatforms, int numXPlatforms, int numZPlatforms)
+    public bool CreatePattern(int patternDirection, List<List<Platform>> planeOfPlatforms, int numXPlatforms, int numZPlatforms)
     {
         currentNumMoves = 0;
         reachedValidEndpoint = false;
@@ -100,32 +95,59 @@ public class Pattern
         NUM_X_PLATFORMS = numXPlatforms;
         NUM_Z_PLATFORMS = numZPlatforms;
 
-        MIN_POSSIBLE_NUM_MOVES = NUM_Z_PLATFORMS - 1;
         MAX_POSSIBLE_NUM_MOVES = (numXPlatforms * numZPlatforms) - 1;
 
         MIN_AIMING_FOR = (int) Mathf.Floor((float)MAX_POSSIBLE_NUM_MOVES / 2.5f);
         MAX_AIMING_FOR = (int) Mathf.Floor((float)MAX_POSSIBLE_NUM_MOVES / 1.25f);
 
         pattern = new List<Platform>();
-        // Get Starting Point X value (Z is 0)
-        int startingX = (int) Mathf.Floor(Random.Range(0, numXPlatforms));
-        pattern.Add(planeOfPlatforms[startingX][0]);
-        canAddPlatform = true;
-        directionFacing = (int)DirectionFacing.POS_Z;
 
+        int startingX, startingZ;
+        if (patternDirection == (int)GameManager.PATTERN_DIRECTION.UP)
+        {
+            // Get Starting Point X value (Z=0)
+            startingX = (int)Mathf.Floor(Random.Range(0, NUM_X_PLATFORMS));
+            startingZ = 0;
+            directionFacing = (int)DirectionFacing.POS_Z;
+        }
+        else if (patternDirection == (int)GameManager.PATTERN_DIRECTION.DOWN)
+        {
+            // Get Starting Point X value (Z=NUM_Z_PLATFORMS - 1)
+            startingX = (int)Mathf.Floor(Random.Range(0, NUM_X_PLATFORMS));
+            startingZ = NUM_Z_PLATFORMS - 1;
+            directionFacing = (int)DirectionFacing.NEG_Z;
+        }
+        else if (patternDirection == (int)GameManager.PATTERN_DIRECTION.RIGHT)
+        {
+            // Get Starting Point Z value (X=0)
+            startingX = 0;
+            startingZ = (int)Mathf.Floor(Random.Range(0, NUM_Z_PLATFORMS));
+            directionFacing = (int)DirectionFacing.POS_X;
+        }
+        else
+        {
+            // Pattern direction is LEFT
+            // Get Starting Point Z value (X=NUM_X_PLATFORMS - 1)
+            startingX = NUM_X_PLATFORMS - 1;
+            startingZ = (int)Mathf.Floor(Random.Range(0, NUM_Z_PLATFORMS));
+            directionFacing = (int)DirectionFacing.NEG_X;
+        }
+
+        canAddPlatform = true;
+        pattern.Add(planeOfPlatforms[startingX][startingZ]);
         currentXIndex = startingX;
-        currentZIndex = 0;
-        invalidSpot[0, currentXIndex] = true;
+        currentZIndex = startingZ;
+        invalidSpot[currentZIndex, currentXIndex] = true;
 
         // Add platforms to the pattern until reached the minimum length of pattern wanted
         while (canAddPlatform && currentNumMoves < MIN_AIMING_FOR)
         {
-            canAddPlatform = AddPlatformToPattern(planeOfPlatforms);
+            canAddPlatform = AddPlatformToPattern(patternDirection, planeOfPlatforms);
         }
 
         while (canAddPlatform && !reachedValidEndpoint && currentNumMoves <= MAX_AIMING_FOR)
         {
-            canAddPlatform = AddPlatformToPattern(planeOfPlatforms);
+            canAddPlatform = AddPlatformToPattern(patternDirection, planeOfPlatforms);
         }
 
         if (!reachedValidEndpoint || currentNumMoves < MIN_AIMING_FOR)
@@ -158,7 +180,6 @@ public class Pattern
         NUM_X_PLATFORMS = numXPlatforms;
         NUM_Z_PLATFORMS = numZPlatforms;
 
-        MIN_POSSIBLE_NUM_MOVES = NUM_Z_PLATFORMS - 1;
         MAX_POSSIBLE_NUM_MOVES = (numXPlatforms * numZPlatforms) - 1;
 
         MIN_AIMING_FOR = (int)Mathf.Floor((float)MAX_POSSIBLE_NUM_MOVES / 2.5f);
@@ -190,7 +211,7 @@ public class Pattern
     /**
      * Adds a new platform to the already existing platform.
      */
-    private bool AddPlatformToPattern(List<List<Platform>> planeOfPlatforms)
+    private bool AddPlatformToPattern(int patternDirection, List<List<Platform>> planeOfPlatforms)
     {
         bool upMoveValid = false;
         bool downMoveValid = false;
@@ -343,13 +364,51 @@ public class Pattern
             invalidSpot[currentZIndex, currentXIndex] = true;
             currentNumMoves++;
 
-            if (currentZIndex == NUM_Z_PLATFORMS-1)
+            // See if reached valid endpoint (on opposite side from grid start point) based on pattern direction
+            if (patternDirection == (int)GameManager.PATTERN_DIRECTION.UP)
             {
-                reachedValidEndpoint = true;
+                if (currentZIndex == NUM_Z_PLATFORMS - 1)
+                {
+                    reachedValidEndpoint = true;
+                }
+                else
+                {
+                    reachedValidEndpoint = false;
+                }
+            }
+            else if (patternDirection == (int)GameManager.PATTERN_DIRECTION.DOWN)
+            {
+                if (currentZIndex == 0)
+                {
+                    reachedValidEndpoint = true;
+                }
+                else
+                {
+                    reachedValidEndpoint = false;
+                }
+            }
+            else if (patternDirection == (int)GameManager.PATTERN_DIRECTION.RIGHT)
+            {
+                if (currentXIndex == NUM_X_PLATFORMS - 1)
+                {
+                    reachedValidEndpoint = true;
+                }
+                else
+                {
+                    reachedValidEndpoint = false;
+                }
             }
             else
             {
-                reachedValidEndpoint = false;
+                // Pattern Direction is LEFT
+                if (currentXIndex == 0)
+                {
+                    reachedValidEndpoint = true;
+                }
+                else
+                {
+                    reachedValidEndpoint = false;
+                }
             }
 
             return true;
