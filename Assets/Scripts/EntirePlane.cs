@@ -1357,6 +1357,26 @@ public class EntirePlane : MonoBehaviour
                         currentRow[j].GetGameObject().GetComponent<Renderer>().material.color = Color.black;
                     }
                 }
+
+                // If on Hard Mode, create fake platforms that surround the real platforms
+                if (GameManager.GAME_DIFFICULTY == (int)GameManager.DIFFICULTY.HARD)
+                {
+                    for (int i = -5; i < 5 + numberPlatformsX; i++)
+                    {
+                        List<Platform> temp = new List<Platform>();
+                        for (int j = -5; j < 5 + numberPlatformsZ; j++)
+                        {
+                            if (i < 0 || i >= numberPlatformsX || j < 0 || j >= numberPlatformsZ)
+                            {
+                                Platform platform = new Platform();
+                                platform.CreateGameObject();
+                                platform.SetPosition(new Vector3(i, 0, j));
+                                temp.Add(platform);
+                            }
+                        }
+                        platforms.Add(temp);
+                    }
+                }
             }
         }
     }

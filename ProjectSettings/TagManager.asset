@@ -14,6 +14,7 @@ TagManager:
   - AudioManager
   - ToggleSoundEffects
   - ToggleMusic
+  - CenterTitleBlock
   layers:
   - Default
   - TransparentFX

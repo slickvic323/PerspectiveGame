@@ -66,6 +66,7 @@
     <Compile Include="Assets\Scripts\AudioManager.cs" />
     <Compile Include="Assets\Scripts\Pattern.cs" />
     <Compile Include="Assets\Scripts\LevelFailUI.cs" />
+    <Compile Include="Assets\Scripts\TitleCameraBehaviour.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro.cginc" />

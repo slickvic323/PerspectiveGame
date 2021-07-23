@@ -3862,11 +3862,13 @@ MonoBehaviour:
     name: Pattern_Single_Note
     volume: 1
     pitch: 1
+    loop: 0
     source: {fileID: 0}
   - clip: {fileID: 8300000, guid: af499c75202efc44ca9105d72d32c781, type: 3}
     name: Button_Press
     volume: 1
     pitch: 1
+    loop: 0
     source: {fileID: 0}
 --- !u!4 &1957727465
 Transform:

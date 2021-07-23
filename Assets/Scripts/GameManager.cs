@@ -132,27 +132,31 @@ public static class GameManager
                     switch (levelDifficulty)
                     {
                         case (1):
-                            numXPlatforms = 3;
+                            numXPlatforms = 2;
                             numZPlatforms = 3;
                             break;
                         case (2):
                             numXPlatforms = 3;
-                            numZPlatforms = 4;
+                            numZPlatforms = 3;
                             break;
                         case (3):
-                            numXPlatforms = 4;
+                            numXPlatforms = 3;
                             numZPlatforms = 4;
                             break;
                         case (4):
                             numXPlatforms = 4;
-                            numZPlatforms = 5;
+                            numZPlatforms = 4;
                             break;
                         case (5):
-                            numXPlatforms = 5;
+                            numXPlatforms = 4;
                             numZPlatforms = 5;
                             break;
+                        //case (5):
+                        //    numXPlatforms = 5;
+                        //    numZPlatforms = 5;
+                        //    break;
                         default:
-                            numXPlatforms = 5;
+                            numXPlatforms = 4;
                             numZPlatforms = 5;
                             break;
                     }
@@ -163,27 +167,27 @@ public static class GameManager
                     switch (levelDifficulty)
                     {
                         case (1):
-                            numXPlatforms = 5;
+                            numXPlatforms = 4;
                             numZPlatforms = 5;
                             break;
                         case (2):
                             numXPlatforms = 5;
-                            numZPlatforms = 6;
+                            numZPlatforms = 5;
                             break;
                         case (3):
-                            numXPlatforms = 6;
+                            numXPlatforms = 5;
                             numZPlatforms = 6;
                             break;
                         case (4):
                             numXPlatforms = 6;
-                            numZPlatforms = 7;
+                            numZPlatforms = 6;
                             break;
                         case (5):
-                            numXPlatforms = 7;
+                            numXPlatforms = 6;
                             numZPlatforms = 7;
                             break;
                         default:
-                            numXPlatforms = 7;
+                            numXPlatforms = 6;
                             numZPlatforms = 7;
                             break;
                     }
@@ -194,27 +198,27 @@ public static class GameManager
                     switch (levelDifficulty)
                     {
                         case (1):
-                            numXPlatforms = 5;
+                            numXPlatforms = 4;
                             numZPlatforms = 5;
                             break;
                         case (2):
                             numXPlatforms = 5;
-                            numZPlatforms = 6;
+                            numZPlatforms = 5;
                             break;
                         case (3):
-                            numXPlatforms = 6;
+                            numXPlatforms = 5;
                             numZPlatforms = 6;
                             break;
                         case (4):
                             numXPlatforms = 6;
-                            numZPlatforms = 7;
+                            numZPlatforms = 6;
                             break;
                         case (5):
-                            numXPlatforms = 7;
+                            numXPlatforms = 6;
                             numZPlatforms = 7;
                             break;
                         default:
-                            numXPlatforms = 7;
+                            numXPlatforms = 6;
                             numZPlatforms = 7;
                             break;
                     }
