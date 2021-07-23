@@ -237,7 +237,7 @@ public static class GameManager
     {
         if (GAME_DIFFICULTY == (int)DIFFICULTY.HARD)
         {
-            int randInt = (int)Mathf.Floor(Random.Range(0, 2));
+            int randInt = (int)Mathf.Floor(Random.Range(0, 1));
             if (randInt == 0)
             {
                 levelPatternDirection = (int)PATTERN_DIRECTION.UP;

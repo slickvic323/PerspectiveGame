@@ -25,6 +25,8 @@ public class EntirePlane : MonoBehaviour
     */
     private List<List<Platform>> platforms;
 
+    private List<Platform> fakePlatformRefs;
+
     /*
      * Swipe Detector Object
      */
@@ -205,13 +207,18 @@ public class EntirePlane : MonoBehaviour
      */
     private int patternAnimationIndex;
 
+    private bool camouflageFakePlatformsInProgress = false;
+
+    private float camoulfageStartingTime;
+    private float totalCamoTime;
+
     // Moving camera from aerial to beginning
     private Vector3 cameraStartPositionAerial;
     private Vector3 cameraEndPositionAerial;
     private float aerialCameraSpeed = 5.0f;
     private float startTimeAerialTransition;
     private float journeyLengthAerialTransition;
-    private bool transitioningFromAerialToInitial = false;
+    private bool transitioningFromAerialToInitial;
 
     GameObject myCanvas;
     GameObject levelCompleteUI;
@@ -355,6 +362,9 @@ public class EntirePlane : MonoBehaviour
             PutCamInAerialView();
         }
 
+        camouflageFakePlatformsInProgress = false;
+
+        AddFakePlatforms();
     }
 
     // Update is called once per frame
@@ -380,6 +390,12 @@ public class EntirePlane : MonoBehaviour
         else if (transitioningFromAerialToInitial)
         {
             MoveCamFromAerialToStart();
+        }
+
+
+        if (camouflageFakePlatformsInProgress)
+        {
+            CamouflageFakePlatforms();
         }
     }
 
@@ -1055,36 +1071,36 @@ public class EntirePlane : MonoBehaviour
                 mySwipeDetector.rightSwipe = false;
             }
 
-            if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
-            {
-                Debug.Log("Clicked");
-                if (!changingPlatforms)
-                {
-                    changePlatformsOnNextBounce = true;
-                    ball.SetDirectionMoving(Ball.MOVING_FORWARD);
-                    cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
-                }
-            }
+            //if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
+            //{
+            //    Debug.Log("Clicked");
+            //    if (!changingPlatforms)
+            //    {
+            //        changePlatformsOnNextBounce = true;
+            //        ball.SetDirectionMoving(Ball.MOVING_FORWARD);
+            //        cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
+            //    }
+            //}
 
-            if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
-            {
-                Debug.Log("Clicked");
-                if (!changingPlatforms)
-                {
-                    changePlatformsOnNextBounce = true;
-                    ball.SetDirectionMoving(Ball.MOVING_RIGHT);
-                }
-            }
+            //if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
+            //{
+            //    Debug.Log("Clicked");
+            //    if (!changingPlatforms)
+            //    {
+            //        changePlatformsOnNextBounce = true;
+            //        ball.SetDirectionMoving(Ball.MOVING_RIGHT);
+            //    }
+            //}
 
-            if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
-            {
-                Debug.Log("Clicked");
-                if (!changingPlatforms)
-                {
-                    changePlatformsOnNextBounce = true;
-                    ball.SetDirectionMoving(Ball.MOVING_LEFT);
-                }
-            }
+            //if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
+            //{
+            //    Debug.Log("Clicked");
+            //    if (!changingPlatforms)
+            //    {
+            //        changePlatformsOnNextBounce = true;
+            //        ball.SetDirectionMoving(Ball.MOVING_LEFT);
+            //    }
+            //}
         }
     }
 
@@ -1244,6 +1260,15 @@ public class EntirePlane : MonoBehaviour
             transitioningFromAerialToInitial = false;
             GameManager.SetMode(GameManager.Mode.gameplay);
             mySwipeDetector.SetSwipeDetectorActivated(true);
+
+            // Begin camouflaging Platforms if there are fake platforms
+
+            if (GameManager.GAME_DIFFICULTY == (int)GameManager.DIFFICULTY.HARD)
+            {
+                camouflageFakePlatformsInProgress = true;
+                totalCamoTime = 3.0f;
+                camoulfageStartingTime = Time.time;
+            }
         }
     }
 
@@ -1261,10 +1286,18 @@ public class EntirePlane : MonoBehaviour
             }
         }
 
+        if (GameManager.GAME_DIFFICULTY == (int)GameManager.DIFFICULTY.HARD)
+        {
+            for (int i=0;i<fakePlatformRefs.Count;i++)
+            {
+                camouflageFakePlatformsInProgress = false;
+                fakePlatformRefs[i].GetGameObject().GetComponent<Renderer>().material.color = Color.red;
+            }
+        }
 
 
-        // Handle Lives
-        GameManager.SubtractNumLivesRemaining();
+            // Handle Lives
+            GameManager.SubtractNumLivesRemaining();
         if (GameManager.GetNumLivesRemaining() != 1)
         {
             livesText.text = GameManager.GetNumLivesRemaining() + " Lives";
@@ -1326,15 +1359,15 @@ public class EntirePlane : MonoBehaviour
                 }
                 Platform nextPlatformInAnimation = patternList[patternAnimationIndex];
                 nextPlatformInAnimation.GetGameObject().GetComponent<Renderer>().material.color = Color.blue;
-                // If in hard mode, only show a maximum of 3 platforms at a time of the pattern
-                if (GameManager.GAME_DIFFICULTY == (int)GameManager.DIFFICULTY.HARD)
-                {
-                    if (patternAnimationIndex > (patternList.Count/2)-1)
-                    {
-                        Platform backToBlack = patternList[patternAnimationIndex - (patternList.Count/2)];
-                        backToBlack.GetGameObject().GetComponent<Renderer>().material.color = Color.black;
-                    }
-                }
+                // If in hard mode, only show a maximum of 1/2 the platforms at a time of the pattern
+                //if (GameManager.GAME_DIFFICULTY == (int)GameManager.DIFFICULTY.HARD)
+                //{
+                //    if (patternAnimationIndex > (patternList.Count/2)-1)
+                //    {
+                //        Platform backToBlack = patternList[patternAnimationIndex - (patternList.Count/2)];
+                //        backToBlack.GetGameObject().GetComponent<Renderer>().material.color = Color.black;
+                //    }
+                //}
                 patternAnimationIndex++;
                 patternAnimationPrevTriggerTime = Time.time;
             }
@@ -1358,25 +1391,27 @@ public class EntirePlane : MonoBehaviour
                     }
                 }
 
-                // If on Hard Mode, create fake platforms that surround the real platforms
-                if (GameManager.GAME_DIFFICULTY == (int)GameManager.DIFFICULTY.HARD)
-                {
-                    for (int i = -5; i < 5 + numberPlatformsX; i++)
-                    {
-                        List<Platform> temp = new List<Platform>();
-                        for (int j = -5; j < 5 + numberPlatformsZ; j++)
-                        {
-                            if (i < 0 || i >= numberPlatformsX || j < 0 || j >= numberPlatformsZ)
-                            {
-                                Platform platform = new Platform();
-                                platform.CreateGameObject();
-                                platform.SetPosition(new Vector3(i, 0, j));
-                                temp.Add(platform);
-                            }
-                        }
-                        platforms.Add(temp);
-                    }
-                }
+                //// If on Hard Mode, create fake platforms that surround the real platforms
+                //if (GameManager.GAME_DIFFICULTY == (int)GameManager.DIFFICULTY.HARD)
+                //{
+                //    for (int i = -5; i < 5 + numberPlatformsX; i++)
+                //    {
+                //        List<Platform> temp = new List<Platform>();
+                //        for (int j = -5; j < 5 + numberPlatformsZ; j++)
+                //        {
+                //            if (i < 0 || i >= numberPlatformsX || j < 0 || j >= numberPlatformsZ)
+                //            {
+                //                Platform platform = new Platform();
+                //                platform.CreateGameObject();
+                //                platform.SetPosition(new Vector3(i, 0, j));
+                //                platform.GetGameObject().GetComponent<Renderer>().material.color = new Color(0f, 0f, 0f, 0.0f);
+
+                //                temp.Add(platform);
+                //            }
+                //        }
+                //        platforms.Add(temp);
+                //    }
+                //}
             }
         }
     }
@@ -1439,6 +1474,54 @@ public class EntirePlane : MonoBehaviour
     public void DoNotQuit()
     {
         quitGameUI.SetActive(false);
+    }
+
+    public void AddFakePlatforms()
+    {
+        // If on Hard Mode, create fake platforms that surround the real platforms
+        if (GameManager.GAME_DIFFICULTY == (int)GameManager.DIFFICULTY.HARD)
+        {
+            fakePlatformRefs = new List<Platform>();
+            for (int i = -5; i < 5 + numberPlatformsX; i++)
+            {
+                List<Platform> temp = new List<Platform>();
+                for (int j = -5; j < 5 + numberPlatformsZ; j++)
+                {
+                    if (i < 0 || i >= numberPlatformsX || j < 0 || j >= numberPlatformsZ)
+                    {
+                        Platform platform = new Platform();
+                        platform.CreateGameObject();
+                        platform.SetPosition(new Vector3(i, 0, j));
+                        platform.GetGameObject().GetComponent<Renderer>().material.color = Color.red;
+                        fakePlatformRefs.Add(platform);
+                        temp.Add(platform);
+                    }
+                }
+                platforms.Add(temp);
+            }
+        }
+    }
+
+    public void CamouflageFakePlatforms()
+    {
+        // If on Hard Mode
+        if (GameManager.GAME_DIFFICULTY == (int)GameManager.DIFFICULTY.HARD)
+        {
+            float timeDiff = Time.time - camoulfageStartingTime;
+
+            for (int i = 0; i < fakePlatformRefs.Count; i++)
+            {
+                Platform platform = fakePlatformRefs[i];
+                platform.GetGameObject().GetComponent<Renderer>().material.color = Color.Lerp(Color.red, Color.black, timeDiff/totalCamoTime);
+
+                if (timeDiff >= totalCamoTime)
+                {
+                    //Camouflage is complete
+                    platform.GetGameObject().GetComponent<Renderer>().material.color = Color.black;
+                    camouflageFakePlatformsInProgress = false;
+                }
+            }
+        }
     }
 }
  
