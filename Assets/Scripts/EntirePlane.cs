@@ -1319,7 +1319,14 @@ public class EntirePlane : MonoBehaviour
             gameFailText.text = "Game Over. Score: " + GameManager.GetCurrentNumPoints();
             gameFailUI.SetActive(true);
 
-            GameManager.HandleEndGamePoints();
+            int highscoreSet = GameManager.SetHighScore();
+            if (highscoreSet != -1)
+            {
+                // New highscore was made
+                // Ask user for their three character name to go with highscore
+                string defaultHighscoreString = "VDD";
+                GameManager.SetHighScoreName(defaultHighscoreString, highscoreSet);
+            }
         }
 
 

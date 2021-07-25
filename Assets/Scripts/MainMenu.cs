@@ -1,19 +1,17 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
-    /**
-     * Text Game Object representing High Score
-     */
-    GameObject highScoreText;
-
     GameObject soundEffectsToggleButton;
 
     GameObject musicToggleButton;
 
     GameObject optionsMenu;
+
+    GameObject highScoreMenu;
 
     Button difficultyButtonEasy, difficultyButtonMedium, difficultyButtonHard;
 
@@ -24,6 +22,11 @@ public class MainMenu : MonoBehaviour
     Sprite toggleOnSprite;
 
     bool firstDifficultyClick;
+
+    GameObject[] hsNormalPlayersText;
+    GameObject[] hsNormalScoresText;
+    GameObject[] hsHardPlayersText;
+    GameObject[] hsHardScoresText;
 
     private enum DIFFICULTY
     {
@@ -51,6 +54,7 @@ public class MainMenu : MonoBehaviour
         firstDifficultyClick = true;
 
         optionsMenu = GameObject.Find("OptionsMenu");
+        highScoreMenu = GameObject.Find("HighScoreMenu");
         audioManagerInstance = GameObject.FindWithTag("AudioManager").GetComponent<AudioManager>();
         audioManagerInstance.Play("Menu_Music", 1);
         soundEffectsEnabled = (PlayerPrefs.GetInt("SoundEffectsEnabled", 1) == 1);
@@ -61,12 +65,36 @@ public class MainMenu : MonoBehaviour
         musicToggleButton = GameObject.FindWithTag("ToggleMusic");
         optionsMenu.SetActive(false);
 
+        hsNormalPlayersText = new GameObject[3];
+        hsNormalScoresText = new GameObject[3];
+        hsHardPlayersText = new GameObject[3];
+        hsHardScoresText = new GameObject[3];
+        // Set High Scores Game Objects
+        for (int i = 0; i < 3; i++)
+        {
+            hsNormalPlayersText[i] = GameObject.Find("/Canvas/HighScoreMenu/NormalHighScores/Players/Player" + (i + 1) + "TextNormal");
+        }
+        for (int i = 0; i < 3; i++)
+        {
+            hsNormalScoresText[i] = GameObject.Find("Score" + (i + 1) + "TextNormal");
+        }
+        for (int i = 0; i < 3; i++)
+        {
+            hsHardPlayersText[i] = GameObject.Find("Player" + (i + 1) + "TextHard");
+        }
+        for (int i = 0; i < 3; i++)
+        {
+            hsHardScoresText[i] = GameObject.Find("Score" + (i + 1) + "TextHard");
+        }
+        highScoreMenu.SetActive(false);
+
 
         difficultyButtonEasy = GameObject.Find("DifficultyButton(Easy)").GetComponent<Button>();
+        difficultyButtonEasy.gameObject.SetActive(false);
         difficultyButtonMedium = GameObject.Find("DifficultyButton(Medium)").GetComponent<Button>();
         difficultyButtonHard = GameObject.Find("DifficultyButton(Hard)").GetComponent<Button>();
 
-        difficultySelected = PlayerPrefs.GetInt("Difficulty", (int)DIFFICULTY.EASY);
+        difficultySelected = PlayerPrefs.GetInt("Difficulty", (int)DIFFICULTY.MEDIUM);
         switch(difficultySelected)
         {
             case ((int)DIFFICULTY.EASY):
@@ -86,7 +114,7 @@ public class MainMenu : MonoBehaviour
                 }
             default:
                 {
-                    ClickDifficultyButtonEasy();
+                    ClickDifficultyButtonMedium();
                     break;
                 }
         }
@@ -96,8 +124,6 @@ public class MainMenu : MonoBehaviour
         difficultyButtonEasy.onClick.AddListener(ClickDifficultyButtonEasy);
         difficultyButtonMedium.onClick.AddListener(ClickDifficultyButtonMedium);
         difficultyButtonHard.onClick.AddListener(ClickDifficultyButtonHard);
-
-        FillInHighScoreText();
     }
 
     /**
@@ -125,15 +151,34 @@ public class MainMenu : MonoBehaviour
         RefreshMusicButton();
     }
 
-    /**
-     * Retrieves High Score and fills in Text Object
-     */
-    public void FillInHighScoreText ()
+    public void HighScoreMenuToggle()
     {
-        highScoreText = GameObject.Find("HighScoreText");
-        highScoreText.GetComponent<Text>().text = "HighScore: " + PlayerPrefs.GetInt("highscore", 0).ToString() + " pts";
-    }
+        if (soundEffectsEnabled)
+        {
+            FindObjectOfType<AudioManager>().Play("Button_Press", 0.5f);
+        }
 
+        if (highScoreMenu.activeSelf)
+        {
+            //Load in the high score data
+            for (int i = 0; i < 3; i++)
+            {
+                hsNormalPlayersText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetString("1highscoreName" + (i + 1), "***");
+            }
+            for (int i = 0; i < 3; i++)
+            {
+                hsNormalScoresText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetInt("1highscore" + (i + 1), 0).ToString();
+            }
+            for (int i = 0; i < 3; i++)
+            {
+                hsHardPlayersText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetString("2highscoreName" + (i + 1), "***");
+            }
+            for (int i = 0; i < 3; i++)
+            {
+                hsHardScoresText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetInt("2highscore" + (i + 1), 0).ToString();
+            }
+        }
+    }
     public void ToggleSoundEffects()
     {
         soundEffectsEnabled = !soundEffectsEnabled;

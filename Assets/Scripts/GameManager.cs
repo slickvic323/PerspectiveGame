@@ -23,6 +23,26 @@ public static class GameManager
         pattern_animation_showing
     }
 
+    public static readonly uint TURN_MOVE_POINTS = 100;
+
+    public static readonly uint FORWARD_MOVE_POINTS = 50;
+
+    public static readonly uint DIFFICULTY_ONE_POINTS = 0;
+    /**
+     * Min Num moves aiming for if all moves were turn moves
+     */
+    public static readonly uint DIFFICULTY_TWO_POINTS = DIFFICULTY_ONE_POINTS + (4 * TURN_MOVE_POINTS);
+    public static readonly uint DIFFICULTY_THREE_POINTS = DIFFICULTY_TWO_POINTS + (6 * TURN_MOVE_POINTS);
+    public static readonly uint DIFFICULTY_FOUR_POINTS = DIFFICULTY_THREE_POINTS + (7 * TURN_MOVE_POINTS);
+    public static readonly uint DIFFICULTY_FIVE_POINTS = DIFFICULTY_FOUR_POINTS + (9 * TURN_MOVE_POINTS);
+    public static readonly uint DIFFICULTY_SIX_POINTS = DIFFICULTY_FIVE_POINTS + (11 * TURN_MOVE_POINTS);
+    public static readonly uint DIFFICULTY_SEVEN_POINTS = DIFFICULTY_SIX_POINTS + (14 * TURN_MOVE_POINTS);
+    public static readonly uint DIFFICULTY_EIGHT_POINTS = DIFFICULTY_SEVEN_POINTS + (16 * TURN_MOVE_POINTS);
+    public static readonly uint DIFFICULTY_NINE_POINTS = DIFFICULTY_EIGHT_POINTS + (18 * TURN_MOVE_POINTS);
+    public static readonly uint DIFFICULTY_TEN_POINTS = DIFFICULTY_NINE_POINTS + (22 * TURN_MOVE_POINTS);
+
+
+
     public enum DIFFICULTY
     {
         EASY,
@@ -93,7 +113,7 @@ public static class GameManager
     public static void StartNewGame()
     {
         mode = Mode.pattern_animation_showing;
-        GAME_DIFFICULTY = PlayerPrefs.GetInt("Difficulty", (int)DIFFICULTY.EASY);
+        GAME_DIFFICULTY = PlayerPrefs.GetInt("Difficulty", (int)DIFFICULTY.MEDIUM);
         numLives = 3;
         currentLevelNumber = 1;
         levelDifficulty = 1;
@@ -110,9 +130,67 @@ public static class GameManager
         mode = Mode.pattern_animation_showing;
         if (!failedPreviousAttempt)
         {
-            if (levelDifficulty < 5)
+            if (levelDifficulty < 10)
             {
-                levelDifficulty++;
+                switch (levelDifficulty)
+                {
+                    case (1):
+                        if (gameScore >= DIFFICULTY_TWO_POINTS)
+                        {
+                            levelDifficulty++;
+                        }
+                        break;
+                    case (2):
+                        if (gameScore >= DIFFICULTY_THREE_POINTS)
+                        {
+                            levelDifficulty++;
+                        }
+                        break;
+                    case (3):
+                        if (gameScore >= DIFFICULTY_FOUR_POINTS)
+                        {
+                            levelDifficulty++;
+                        }
+                        break;
+                    case (4):
+                        if (gameScore >= DIFFICULTY_FIVE_POINTS)
+                        {
+                            levelDifficulty++;
+                        }
+                        break;
+                    case (5):
+                        if (gameScore >= DIFFICULTY_SIX_POINTS)
+                        {
+                            levelDifficulty++;
+                        }
+                        break;
+                    case (6):
+                        if (gameScore >= DIFFICULTY_SEVEN_POINTS)
+                        {
+                            levelDifficulty++;
+                        }
+                        break;
+                    case (7):
+                        if (gameScore >= DIFFICULTY_EIGHT_POINTS)
+                        {
+                            levelDifficulty++;
+                        }
+                        break;
+                    case (8):
+                        if (gameScore >= DIFFICULTY_NINE_POINTS)
+                        {
+                            levelDifficulty++;
+                        }
+                        break;
+                    case (9):
+                        if (gameScore >= DIFFICULTY_TEN_POINTS)
+                        {
+                            levelDifficulty++;
+                        }
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
@@ -125,112 +203,156 @@ public static class GameManager
      */
     private static void DetermineGridSize()
     {
-        switch (GAME_DIFFICULTY)
+        //switch (GAME_DIFFICULTY)
+        //{
+        //    case ((int)DIFFICULTY.EASY):
+        //        {
+        //            switch (levelDifficulty)
+        //            {
+        //                case (1):
+        //                    numXPlatforms = 2;
+        //                    numZPlatforms = 3;
+        //                    break;
+        //                case (2):
+        //                    numXPlatforms = 3;
+        //                    numZPlatforms = 3;
+        //                    break;
+        //                case (3):
+        //                    numXPlatforms = 3;
+        //                    numZPlatforms = 4;
+        //                    break;
+        //                case (4):
+        //                    numXPlatforms = 4;
+        //                    numZPlatforms = 4;
+        //                    break;
+        //                case (5):
+        //                    numXPlatforms = 4;
+        //                    numZPlatforms = 5;
+        //                    break;
+        //                default:
+        //                    numXPlatforms = 4;
+        //                    numZPlatforms = 5;
+        //                    break;
+        //            }
+        //            break;
+        //        }
+        //    case ((int)DIFFICULTY.MEDIUM):
+        //        {
+        //            switch (levelDifficulty)
+        //            {
+        //                case (1):
+        //                    numXPlatforms = 3;
+        //                    numZPlatforms = 4;
+        //                    break;
+        //                case (2):
+        //                    numXPlatforms = 4;
+        //                    numZPlatforms = 4;
+        //                    break;
+        //                case (3):
+        //                    numXPlatforms = 4;
+        //                    numZPlatforms = 5;
+        //                    break;
+        //                case (4):
+        //                    numXPlatforms = 5;
+        //                    numZPlatforms = 5;
+        //                    break;
+        //                case (5):
+        //                    numXPlatforms = 5;
+        //                    numZPlatforms = 6;
+        //                    break;
+        //                case (6):
+        //                    numXPlatforms = 6
+        //                default:
+        //                    numXPlatforms = 6;
+        //                    numZPlatforms = 7;
+        //                    break;
+        //            }
+        //            break;
+        //        }
+        //    case ((int)DIFFICULTY.HARD):
+        //        {
+        //            switch (levelDifficulty)
+        //            {
+        //                case (1):
+        //                    numXPlatforms = 4;
+        //                    numZPlatforms = 5;
+        //                    break;
+        //                case (2):
+        //                    numXPlatforms = 5;
+        //                    numZPlatforms = 5;
+        //                    break;
+        //                case (3):
+        //                    numXPlatforms = 5;
+        //                    numZPlatforms = 6;
+        //                    break;
+        //                case (4):
+        //                    numXPlatforms = 6;
+        //                    numZPlatforms = 6;
+        //                    break;
+        //                case (5):
+        //                    numXPlatforms = 6;
+        //                    numZPlatforms = 7;
+        //                    break;
+        //                default:
+        //                    numXPlatforms = 6;
+        //                    numZPlatforms = 7;
+        //                    break;
+        //            }
+        //            break;
+        //        }
+        //    default:
+        //        {
+        //            Debug.Log("Error with Determining Grid Size. Difficulty not set properly");
+        //            break;
+        //        }
+        //}
+        switch (levelDifficulty)
         {
-            case ((int)DIFFICULTY.EASY):
-                {
-                    switch (levelDifficulty)
-                    {
-                        case (1):
-                            numXPlatforms = 2;
-                            numZPlatforms = 3;
-                            break;
-                        case (2):
-                            numXPlatforms = 3;
-                            numZPlatforms = 3;
-                            break;
-                        case (3):
-                            numXPlatforms = 3;
-                            numZPlatforms = 4;
-                            break;
-                        case (4):
-                            numXPlatforms = 4;
-                            numZPlatforms = 4;
-                            break;
-                        case (5):
-                            numXPlatforms = 4;
-                            numZPlatforms = 5;
-                            break;
-                        //case (5):
-                        //    numXPlatforms = 5;
-                        //    numZPlatforms = 5;
-                        //    break;
-                        default:
-                            numXPlatforms = 4;
-                            numZPlatforms = 5;
-                            break;
-                    }
-                    break;
-                }
-            case ((int)DIFFICULTY.MEDIUM):
-                {
-                    switch (levelDifficulty)
-                    {
-                        case (1):
-                            numXPlatforms = 4;
-                            numZPlatforms = 5;
-                            break;
-                        case (2):
-                            numXPlatforms = 5;
-                            numZPlatforms = 5;
-                            break;
-                        case (3):
-                            numXPlatforms = 5;
-                            numZPlatforms = 6;
-                            break;
-                        case (4):
-                            numXPlatforms = 6;
-                            numZPlatforms = 6;
-                            break;
-                        case (5):
-                            numXPlatforms = 6;
-                            numZPlatforms = 7;
-                            break;
-                        default:
-                            numXPlatforms = 6;
-                            numZPlatforms = 7;
-                            break;
-                    }
-                    break;
-                }
-            case ((int)DIFFICULTY.HARD):
-                {
-                    switch (levelDifficulty)
-                    {
-                        case (1):
-                            numXPlatforms = 4;
-                            numZPlatforms = 5;
-                            break;
-                        case (2):
-                            numXPlatforms = 5;
-                            numZPlatforms = 5;
-                            break;
-                        case (3):
-                            numXPlatforms = 5;
-                            numZPlatforms = 6;
-                            break;
-                        case (4):
-                            numXPlatforms = 6;
-                            numZPlatforms = 6;
-                            break;
-                        case (5):
-                            numXPlatforms = 6;
-                            numZPlatforms = 7;
-                            break;
-                        default:
-                            numXPlatforms = 6;
-                            numZPlatforms = 7;
-                            break;
-                    }
-                    break;
-                }
+            case (1):
+                numXPlatforms = 3;
+                numZPlatforms = 4;
+                break;
+            case (2):
+                numXPlatforms = 4;
+                numZPlatforms = 4;
+                break;
+            case (3):
+                numXPlatforms = 4;
+                numZPlatforms = 5;
+                break;
+            case (4):
+                numXPlatforms = 5;
+                numZPlatforms = 5;
+                break;
+            case (5):
+                numXPlatforms = 5;
+                numZPlatforms = 6;
+                break;
+            case (6):
+                numXPlatforms = 6;
+                numZPlatforms = 6;
+                break;
+            case (7):
+                numXPlatforms = 6;
+                numZPlatforms = 7;
+                break;
+            case (8):
+                numXPlatforms = 7;
+                numZPlatforms = 7;
+                break;
+            case (9):
+                numXPlatforms = 7;
+                numZPlatforms = 8;
+                break;
+            case (10):
+                numXPlatforms = 8;
+                numZPlatforms = 8;
+                break;
             default:
-                {
-                    Debug.Log("Error with Determining Grid Size. Difficulty not set properly");
-                    break;
-                }
+                numXPlatforms = 8;
+                numZPlatforms = 8;
+                break;
         }
-
     }
 
     private static void DeterminePatternDirection()
@@ -283,7 +405,7 @@ public static class GameManager
      */
     public static void ForwardMove ()
     {
-        AddPoints(50);
+        AddPoints(FORWARD_MOVE_POINTS);
     }
 
     /*
@@ -291,7 +413,7 @@ public static class GameManager
     */
     public static void TurnMove()
     {
-        AddPoints(100);
+        AddPoints(TURN_MOVE_POINTS);
     }
 
     /*
@@ -398,45 +520,81 @@ public static class GameManager
     }
 
     /**
-     * Returns true if current score is new high score.
-     */
-    public static bool IsHighScore()
-    {
-        if (gameScore > PlayerPrefs.GetInt("highscore", 0))
-        {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Returns the high score
-     */
-    public static int GetHighScore()
-    {
-        return PlayerPrefs.GetInt("highscore");
-    }
-
-    /**
      * Sets new high score with passed in value
      */
-    public static void SetHighScore(uint score)
+    public static int SetHighScore()
     {
-        if (score >= 0 && score <= 1000000)
+        int newHighscoreSet = -1;
+        uint score = GetCurrentNumPoints();
+        int difficulty = GAME_DIFFICULTY;
+        if (score > 0 && score <= 1000000)
         {
-            PlayerPrefs.SetInt("highscore", (int)score);
+            uint[] currentLeaderboard = new uint[3];
+            for (int i=0;i<3;i++)
+            {
+                currentLeaderboard[i] = (uint)PlayerPrefs.GetInt(difficulty.ToString() + "highscore" + (i+1), 0);
+            }
+
+            if (score >= currentLeaderboard[0])
+            {
+                // new high score
+                currentLeaderboard[2] = currentLeaderboard[1];
+                currentLeaderboard[1] = currentLeaderboard[0];
+                currentLeaderboard[0] = score;
+                newHighscoreSet = 1;
+            }
+            else if (score >= currentLeaderboard[1])
+            {
+                // new second high score
+                currentLeaderboard[2] = currentLeaderboard[1];
+                currentLeaderboard[1] = score;
+                newHighscoreSet = 2;
+            }
+            else if (score >= currentLeaderboard[2])
+            {
+                currentLeaderboard[2] = score;
+                newHighscoreSet = 3;
+            }
+
+            if (newHighscoreSet!=-1)
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    PlayerPrefs.SetInt(difficulty.ToString() + "highscore" + (i + 1), (int)currentLeaderboard[i]);
+                }
+            }
         }
+        return newHighscoreSet;
     }
 
-    /**
-     * Handles creating new high score if necessary.
-     */
-    public static void HandleEndGamePoints()
+    public static void SetHighScoreName(string highscoreName, int newRanking)
     {
-        // If current score is greater than highscore, then replace highscore with current score
-        if (IsHighScore())
+        string[] currentNames = new string[3];
+        int difficulty = GAME_DIFFICULTY;
+        for (int i=0;i<3;i++)
         {
-            SetHighScore(gameScore);
+            currentNames[i] = PlayerPrefs.GetString(difficulty.ToString() + "highscoreName" + (i + 1), "***");
+        }
+
+        if (newRanking == 1)
+        {
+            currentNames[2] = currentNames[1];
+            currentNames[1] = currentNames[0];
+            currentNames[0] = highscoreName;
+        }
+        else if (newRanking == 2)
+        {
+            currentNames[2] = currentNames[1];
+            currentNames[1] = highscoreName;
+        }
+        else if (newRanking == 3)
+        {
+            currentNames[2] = highscoreName;
+        }
+
+        for (int i = 0; i < 3; i++)
+        {
+            PlayerPrefs.SetString(difficulty.ToString() + "highscoreName" + (i + 1), currentNames[i]);
         }
     }
 
