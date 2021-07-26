@@ -233,15 +233,23 @@ public class EntirePlane : MonoBehaviour
 
     Text levelCompleteText;
     Text levelFailText;
-    Text gameFailText;
+    Text gameFailScoreText;
     TextMeshProUGUI numBouncesLeftText;
     Text pointsText;
     Text livesText;
+
+    private GameObject newHighScoreFolder;
+    private Text newRankText;
+    private TextMeshProUGUI difficultyTitleText;
+    private TMP_InputField highScoreNameInput;
+    private GameObject[] hsDataRankNumsText, hsDataPlayersText, hsDataScoresText;
+    private int highscoreSet = -1;
 
 
     // Start is called before the first frame update
     void Start()
     {
+        //CleanAllHighScores();
         if (GameManager.GetMode() == GameManager.Mode.new_game_setup)
         {
             GameManager.StartNewGame();
@@ -308,9 +316,28 @@ public class EntirePlane : MonoBehaviour
             levelFailUI.SetActive(false);
             levelFailText = levelFailUI.GetComponentInChildren<Text>();
 
+            // Game Fail Instantiation
             gameFailUI = GameObject.FindWithTag("GameFail");
+            gameFailScoreText = GameObject.Find("GameScoreText").GetComponent<Text>();
+
+            newHighScoreFolder = GameObject.Find("NewHighScoreUI");
+            newRankText = GameObject.Find("NewHighScoreText").GetComponent<Text>();
+            difficultyTitleText = GameObject.Find("DifficultyTitleText").GetComponent<TextMeshProUGUI>();
+            highScoreNameInput = GameObject.Find("PlayerInput").GetComponent<TMP_InputField>();
+            highScoreNameInput.onValueChanged.AddListener(delegate { HighScoreNameChangeCheck(); });
+
+            hsDataRankNumsText = new GameObject[3];
+            hsDataPlayersText = new GameObject[3];
+            hsDataScoresText = new GameObject[3];
+            for (int i=0;i<3;i++)
+            {
+                hsDataRankNumsText[i] = GameObject.Find("Rank" + (i + 1) + "TextNewHighScores");
+                hsDataPlayersText[i] = GameObject.Find("Player" + (i + 1) + "TextNewHighScores");
+                hsDataScoresText[i] = GameObject.Find("Score" + (i + 1) + "TextNewHighScores");
+            }
+
+            newHighScoreFolder.SetActive(false);
             gameFailUI.SetActive(false);
-            gameFailText = gameFailUI.GetComponentInChildren<Text>();
 
             bouncesLeftUI = GameObject.FindWithTag("BouncesLeftUI");
             numBouncesLeftText = bouncesLeftUI.GetComponentInChildren<TextMeshProUGUI>();
@@ -1071,36 +1098,36 @@ public class EntirePlane : MonoBehaviour
                 mySwipeDetector.rightSwipe = false;
             }
 
-            //if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
-            //{
-            //    Debug.Log("Clicked");
-            //    if (!changingPlatforms)
-            //    {
-            //        changePlatformsOnNextBounce = true;
-            //        ball.SetDirectionMoving(Ball.MOVING_FORWARD);
-            //        cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
-            //    }
-            //}
+            if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
+            {
+                Debug.Log("Clicked");
+                if (!changingPlatforms)
+                {
+                    changePlatformsOnNextBounce = true;
+                    ball.SetDirectionMoving(Ball.MOVING_FORWARD);
+                    cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
+                }
+            }
 
-            //if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
-            //{
-            //    Debug.Log("Clicked");
-            //    if (!changingPlatforms)
-            //    {
-            //        changePlatformsOnNextBounce = true;
-            //        ball.SetDirectionMoving(Ball.MOVING_RIGHT);
-            //    }
-            //}
+            if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
+            {
+                Debug.Log("Clicked");
+                if (!changingPlatforms)
+                {
+                    changePlatformsOnNextBounce = true;
+                    ball.SetDirectionMoving(Ball.MOVING_RIGHT);
+                }
+            }
 
-            //if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
-            //{
-            //    Debug.Log("Clicked");
-            //    if (!changingPlatforms)
-            //    {
-            //        changePlatformsOnNextBounce = true;
-            //        ball.SetDirectionMoving(Ball.MOVING_LEFT);
-            //    }
-            //}
+            if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
+            {
+                Debug.Log("Clicked");
+                if (!changingPlatforms)
+                {
+                    changePlatformsOnNextBounce = true;
+                    ball.SetDirectionMoving(Ball.MOVING_LEFT);
+                }
+            }
         }
     }
 
@@ -1316,16 +1343,55 @@ public class EntirePlane : MonoBehaviour
         else
         {
             // Show Game Fail UI
-            gameFailText.text = "Game Over. Score: " + GameManager.GetCurrentNumPoints();
+            gameFailScoreText.text = "Your Score: " + GameManager.GetCurrentNumPoints();
+            if (GameManager.GAME_DIFFICULTY == 1)
+            {
+                difficultyTitleText.text = "Normal Mode HighScores";
+            }
+            else if (GameManager.GAME_DIFFICULTY == 2)
+            {
+                difficultyTitleText.text = "Hard Mode HighScores";
+            }
             gameFailUI.SetActive(true);
 
-            int highscoreSet = GameManager.SetHighScore();
+            highscoreSet = GameManager.SetHighScore();
             if (highscoreSet != -1)
             {
                 // New highscore was made
+                newHighScoreFolder.SetActive(true);
+                newRankText.text = "New #" + highscoreSet + " Rank!";
+                hsDataRankNumsText[highscoreSet - 1].GetComponent<TextMeshProUGUI>().color = Color.green;
+                hsDataPlayersText[highscoreSet - 1].GetComponent<TextMeshProUGUI>().color = Color.green;
+                hsDataScoresText[highscoreSet - 1].GetComponent<TextMeshProUGUI>().color = Color.green;
+
                 // Ask user for their three character name to go with highscore
-                string defaultHighscoreString = "VDD";
-                GameManager.SetHighScoreName(defaultHighscoreString, highscoreSet);
+                string defaultHighscoreString = "***";
+                GameManager.SetAndBumpHighScoreName(defaultHighscoreString, highscoreSet);
+
+                // Fill in high score data
+                for (int i = 0; i < 3; i++)
+                {
+                    if (i == highscoreSet - 1)
+                    {
+                        // Grab from new score just created
+                        hsDataPlayersText[i].GetComponent<TextMeshProUGUI>().text = "***";
+                    }
+                    else
+                    {
+                        // Grab from high score data
+                        hsDataPlayersText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetString(((int)GameManager.GAME_DIFFICULTY).ToString() + "highscoreName" + (i + 1), "***");
+                    }
+                    hsDataScoresText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetInt(((int)GameManager.GAME_DIFFICULTY).ToString() + "highscore" + (i + 1), 0).ToString();
+                }
+            }
+            else
+            {
+                // Still fill in high score data from previous existing
+                for (int i = 0; i < 3; i++)
+                {
+                    hsDataPlayersText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetString(((int)GameManager.GAME_DIFFICULTY).ToString() + "highscoreName" + (i + 1), "***");
+                    hsDataScoresText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetInt(((int)GameManager.GAME_DIFFICULTY).ToString() + "highscore" + (i + 1), 0).ToString();
+                }
             }
         }
 
@@ -1528,6 +1594,40 @@ public class EntirePlane : MonoBehaviour
                     camouflageFakePlatformsInProgress = false;
                 }
             }
+        }
+    }
+
+    public void HighScoreNameChangeCheck()
+    {
+        string newHighScoreNameString = highScoreNameInput.text.ToString();
+        // Don't allow player to input more than 3 characters
+        if (newHighScoreNameString.Length > 3)
+        {
+            highScoreNameInput.text = newHighScoreNameString.Substring(0, 3);
+        }
+
+        // Ask user for their three character name to go with highscore
+        string defaultHighscoreString = "***";
+        if (newHighScoreNameString == null || newHighScoreNameString.Length <= 0 || newHighScoreNameString.Length > 3)
+        {
+            PlayerPrefs.SetString(GameManager.GAME_DIFFICULTY.ToString() + "highscoreName" + highscoreSet, defaultHighscoreString);
+            hsDataPlayersText[highscoreSet - 1].GetComponent<TextMeshProUGUI>().text = defaultHighscoreString;
+        }
+        else
+        {
+            PlayerPrefs.SetString(GameManager.GAME_DIFFICULTY.ToString() + "highscoreName" + highscoreSet, newHighScoreNameString);
+            hsDataPlayersText[highscoreSet - 1].GetComponent<TextMeshProUGUI>().text = newHighScoreNameString;
+        }
+    }
+
+    public void CleanAllHighScores()
+    {
+        for (int i=0;i<3;i++)
+        {
+            PlayerPrefs.SetInt("1highscore" + (i + 1), 0);
+            PlayerPrefs.SetString("1highscoreName" + (i + 1), "***");
+            PlayerPrefs.SetInt("2highscore" + (i + 1), 0);
+            PlayerPrefs.SetString("2highscoreName" + (i + 1), "***");
         }
     }
 }
