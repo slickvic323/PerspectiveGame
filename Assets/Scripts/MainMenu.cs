@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.Video;
 
 public class MainMenu : MonoBehaviour
 {
@@ -12,6 +13,10 @@ public class MainMenu : MonoBehaviour
     GameObject optionsMenu;
 
     GameObject highScoreMenu;
+
+    GameObject tutorialMenu;
+
+    GameObject titleFolder;
 
     Button difficultyButtonEasy, difficultyButtonMedium, difficultyButtonHard;
 
@@ -45,6 +50,11 @@ public class MainMenu : MonoBehaviour
 
     private bool musicEnabled;
 
+    private GameObject patternVid, forwardVid, rightVid, leftVid;
+    private GameObject slideNumText;
+    private GameObject tutorialTextInstruction;
+    private int currentTutorialSlideNum;
+
     /**
      * Called when MainMenu Object is created
      */
@@ -55,6 +65,8 @@ public class MainMenu : MonoBehaviour
 
         optionsMenu = GameObject.Find("OptionsMenu");
         highScoreMenu = GameObject.Find("HighScoreMenu");
+        tutorialMenu = GameObject.Find("TutorialMenu");
+        titleFolder = GameObject.Find("Title Folder");
         audioManagerInstance = GameObject.FindWithTag("AudioManager").GetComponent<AudioManager>();
         audioManagerInstance.Play("Menu_Music", 1);
         soundEffectsEnabled = (PlayerPrefs.GetInt("SoundEffectsEnabled", 1) == 1);
@@ -124,6 +136,24 @@ public class MainMenu : MonoBehaviour
         difficultyButtonEasy.onClick.AddListener(ClickDifficultyButtonEasy);
         difficultyButtonMedium.onClick.AddListener(ClickDifficultyButtonMedium);
         difficultyButtonHard.onClick.AddListener(ClickDifficultyButtonHard);
+
+        // Tutorial Menu setup
+        patternVid = GameObject.Find("Tutorial Pattern Video");
+        forwardVid = GameObject.Find("Tutorial Go Forward Video");
+        rightVid = GameObject.Find("Tutorial Go Right Video");
+        leftVid = GameObject.Find("Tutorial Go Left Video");
+
+        patternVid.SetActive(false);
+        forwardVid.SetActive(false);
+        rightVid.SetActive(false);
+        leftVid.SetActive(false);
+
+        tutorialTextInstruction = GameObject.Find("Text Instruction");
+        tutorialTextInstruction.GetComponent<TextMeshProUGUI>().text = "";
+
+        slideNumText = GameObject.Find("Text Slide Number");
+
+        tutorialMenu.SetActive(false);
     }
 
     /**
@@ -319,4 +349,124 @@ public class MainMenu : MonoBehaviour
         deselected.colors = colorBlock;
     }
 
+    public void TutorialMenuToggle()
+    {
+        if (tutorialMenu.activeSelf)
+        {
+            titleFolder.SetActive(false);
+
+            currentTutorialSlideNum = 1;
+            LoadSlide(currentTutorialSlideNum, -1);
+            slideNumText.GetComponent<TextMeshProUGUI>().text = "1/4";
+        }
+        else
+        {
+            patternVid.GetComponent<VideoPlayer>().Stop();
+            forwardVid.GetComponent<VideoPlayer>().Stop();
+            rightVid.GetComponent<VideoPlayer>().Stop();
+            leftVid.GetComponent<VideoPlayer>().Stop();
+            patternVid.SetActive(false);
+            forwardVid.SetActive(false);
+            rightVid.SetActive(false);
+            leftVid.SetActive(false);
+
+            titleFolder.SetActive(true);
+        }
+    }
+
+    public void LoadSlide(int slideNum, int prevSlide)
+    {
+        if (prevSlide != -1)
+        {
+            switch (prevSlide)
+            {
+                case (1):
+                    {
+                        patternVid.GetComponent<VideoPlayer>().Stop();
+                        patternVid.SetActive(false);
+                        break;
+                    }
+                case (2):
+                    {
+                        forwardVid.GetComponent<VideoPlayer>().Stop();
+                        forwardVid.SetActive(false); break;
+                    }
+                case (3):
+                    {
+                        rightVid.GetComponent<VideoPlayer>().Stop();
+                        rightVid.SetActive(false);
+                        break;
+                    }
+                case (4):
+                    {
+                        leftVid.GetComponent<VideoPlayer>().Stop();
+                        leftVid.SetActive(false);
+                        break;
+                    }
+                default:
+                    Debug.Log("Error with loading slides");
+                    break;
+
+            }
+        }
+
+        switch (slideNum)
+        {
+            case (1):
+                {
+                    patternVid.SetActive(true);
+                    patternVid.GetComponent<VideoPlayer>().Play();
+                    tutorialTextInstruction.GetComponent<TextMeshProUGUI>().text = "Memorize the Given Pattern";
+                    break;
+                }
+            case (2):
+                {
+                    forwardVid.SetActive(true);
+                    forwardVid.GetComponent<VideoPlayer>().Play();
+                    tutorialTextInstruction.GetComponent<TextMeshProUGUI>().text = "Swipe Up to Move Forward";
+                    break;
+                }
+            case (3):
+                {
+                    rightVid.SetActive(true);
+                    rightVid.GetComponent<VideoPlayer>().Play();
+                    tutorialTextInstruction.GetComponent<TextMeshProUGUI>().text = "Swipe Right to Turn Right";
+                    break;
+                }
+            case (4):
+                {
+                    leftVid.SetActive(true);
+                    leftVid.GetComponent<VideoPlayer>().Play();
+                    tutorialTextInstruction.GetComponent<TextMeshProUGUI>().text = "Swipe Left to Turn Left";
+                    break;
+                }
+            default:
+                Debug.Log("Error with loading slides");
+                break;
+        }
+    }
+
+    public void PreviousButtonClicked()
+    {
+        int prevSlideNum = currentTutorialSlideNum;
+        currentTutorialSlideNum--;
+        if (currentTutorialSlideNum < 1)
+        {
+            currentTutorialSlideNum = 4;
+        }
+        LoadSlide(currentTutorialSlideNum, prevSlideNum);
+        slideNumText.GetComponent<TextMeshProUGUI>().text = currentTutorialSlideNum + "/4";
+    }
+
+    public void NextButtonClicked()
+    {
+        int prevSlideNum = currentTutorialSlideNum;
+        currentTutorialSlideNum++;
+        if (currentTutorialSlideNum > 4)
+        {
+            currentTutorialSlideNum = 1;
+        }
+        LoadSlide(currentTutorialSlideNum, prevSlideNum);
+        slideNumText.GetComponent<TextMeshProUGUI>().text = currentTutorialSlideNum + "/4";
+    }
 }

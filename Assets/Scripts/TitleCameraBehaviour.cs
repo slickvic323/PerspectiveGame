@@ -20,6 +20,8 @@ public class TitleCameraBehaviour : MonoBehaviour
         SIDE
     };
 
+    bool camNoMove;
+
     readonly float CAMERA_SPEED = 27.0f;
 
     private GameObject centerTitleBlock;
@@ -70,6 +72,7 @@ public class TitleCameraBehaviour : MonoBehaviour
     {
         mainCamera = Camera.main;
         centerTitleBlock = GameObject.FindWithTag("CenterTitleBlock");
+        camNoMove = false;
 
         // Set camera to top view to begin with
         mainCamera.transform.position = new Vector3(TOP_POS_X, TOP_POS_Y, TOP_POS_Z);
@@ -88,60 +91,63 @@ public class TitleCameraBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // If not transitioning between camera views, check if should be
-        if (transitionStatus == (int)TRANSITIONING_TO.NONE)
+        if (!camNoMove)
         {
-            if (Time.time - newPositionStartTime >= HOLD_TIME)
+            // If not transitioning between camera views, check if should be
+            if (transitionStatus == (int)TRANSITIONING_TO.NONE)
             {
-                transitionPositionStart = mainCamera.transform.position;
-                transitionAngleStart = mainCamera.transform.eulerAngles;
-                // determine which view to transition to
-                if (viewStatus == 0)
+                if (Time.time - newPositionStartTime >= HOLD_TIME)
                 {
-                    viewStatus = 1;
-                }
-                else if (viewStatus == 1)
-                {
-                    viewStatus = 0;
-                }
-                switch (viewStatus)
-                {
-                    case ((int)VIEW.TOP):
-                        {
-                            transitionStatus = (int)TRANSITIONING_TO.TOP;
-                            transitionPositionEnd = new Vector3(TOP_POS_X, TOP_POS_Y, TOP_POS_Z);
-                            transitionAngleEnd = new Vector3(TOP_ANGLE_X, TOP_ANGLE_Y, TOP_ANGLE_Z);
-                            break;
-                        }
-                    case ((int)VIEW.FRONT):
-                        {
-                            transitionStatus = (int)TRANSITIONING_TO.FRONT;
-                            transitionPositionEnd = new Vector3(FRONT_POS_X, FRONT_POS_Y, FRONT_POS_Z);
-                            transitionAngleEnd = new Vector3(FRONT_ANGLE_X, FRONT_ANGLE_Y, FRONT_ANGLE_Z);
-                            break;
-                        }
-                    case ((int)VIEW.SIDE):
-                        {
-                            transitionStatus = (int)TRANSITIONING_TO.SIDE;
-                            transitionPositionEnd = new Vector3(SIDE_POS_X, SIDE_POS_Y, SIDE_POS_Z);
-                            transitionAngleEnd = new Vector3(SIDE_ANGLE_X, SIDE_ANGLE_Y, SIDE_ANGLE_Z);
-                            break;
-                        }
-                    default:
-                        {
-                            Debug.Log("Something went wrong with camera");
-                            break;
-                        }
-                }
+                    transitionPositionStart = mainCamera.transform.position;
+                    transitionAngleStart = mainCamera.transform.eulerAngles;
+                    // determine which view to transition to
+                    if (viewStatus == 0)
+                    {
+                        viewStatus = 1;
+                    }
+                    else if (viewStatus == 1)
+                    {
+                        viewStatus = 0;
+                    }
+                    switch (viewStatus)
+                    {
+                        case ((int)VIEW.TOP):
+                            {
+                                transitionStatus = (int)TRANSITIONING_TO.TOP;
+                                transitionPositionEnd = new Vector3(TOP_POS_X, TOP_POS_Y, TOP_POS_Z);
+                                transitionAngleEnd = new Vector3(TOP_ANGLE_X, TOP_ANGLE_Y, TOP_ANGLE_Z);
+                                break;
+                            }
+                        case ((int)VIEW.FRONT):
+                            {
+                                transitionStatus = (int)TRANSITIONING_TO.FRONT;
+                                transitionPositionEnd = new Vector3(FRONT_POS_X, FRONT_POS_Y, FRONT_POS_Z);
+                                transitionAngleEnd = new Vector3(FRONT_ANGLE_X, FRONT_ANGLE_Y, FRONT_ANGLE_Z);
+                                break;
+                            }
+                        case ((int)VIEW.SIDE):
+                            {
+                                transitionStatus = (int)TRANSITIONING_TO.SIDE;
+                                transitionPositionEnd = new Vector3(SIDE_POS_X, SIDE_POS_Y, SIDE_POS_Z);
+                                transitionAngleEnd = new Vector3(SIDE_ANGLE_X, SIDE_ANGLE_Y, SIDE_ANGLE_Z);
+                                break;
+                            }
+                        default:
+                            {
+                                Debug.Log("Something went wrong with camera");
+                                break;
+                            }
+                    }
 
-                transitionPositionDiff = Vector3.Distance(transitionPositionStart, transitionPositionEnd);
-                transitionStartTime = Time.time;
+                    transitionPositionDiff = Vector3.Distance(transitionPositionStart, transitionPositionEnd);
+                    transitionStartTime = Time.time;
+                }
             }
-        }
 
-        if (transitionStatus != (int)TRANSITIONING_TO.NONE)
-        {
-            TransitionBetweenViews();
+            if (transitionStatus != (int)TRANSITIONING_TO.NONE)
+            {
+                TransitionBetweenViews();
+            }
         }
     }
 
@@ -160,5 +166,17 @@ public class TitleCameraBehaviour : MonoBehaviour
             transitionStatus = (int)TRANSITIONING_TO.NONE;
             newPositionStartTime = Time.time;
         }
+    }
+
+    public void TutorialMenuOpen()
+    {
+        mainCamera.transform.position = new Vector3(TOP_POS_X, TOP_POS_Y, TOP_POS_Z);
+        mainCamera.transform.eulerAngles = new Vector3(TOP_ANGLE_X, TOP_ANGLE_Y, TOP_ANGLE_Z);
+        camNoMove = true;
+    }
+
+    public void TutorialMenuClose()
+    {
+        Start();
     }
 }
