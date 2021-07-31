@@ -397,6 +397,10 @@ public class EntirePlane : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (ball!=null)
+        {
+            Debug.Log(ball.GetWhichPlatfromOnX());
+        }
         if (GameManager.GetMode() == GameManager.Mode.gameplay)
         {
             mySwipeDetector.Update();
@@ -480,10 +484,9 @@ public class EntirePlane : MonoBehaviour
      */
     private void ProperBounce()
     {
-        // Check if Ball is going to fall off edge of plane
-        if (ballWillFallOffEdge)
+        if (GameManager.GetMode() == GameManager.Mode.gameplay)
         {
-            if (GameManager.GetMode() == GameManager.Mode.gameplay)
+            if (ballWillFallOffEdge)
             {
                 BallMadeWrongMove();
             }
@@ -494,25 +497,41 @@ public class EntirePlane : MonoBehaviour
             firstBounceVelocity = lastYVelocity * -1f;
             ball.GetRigidbody().velocity = new Vector3(ball.GetRigidbody().velocity.x, firstBounceVelocity, ball.GetRigidbody().velocity.z);
             firstBounceYet = true;
-            audioManager.Play("Pattern_Single_Note", 1f + ((ballMovingAlongPatternIndex-1) * 0.1f));
+
+            if (GameManager.GetMode() == GameManager.Mode.gameplay)
+            {
+                audioManager.Play("Pattern_Single_Note", 1f + ((ballMovingAlongPatternIndex - 1) * 0.1f));
+            }
+            else if (GameManager.GetMode() == GameManager.Mode.completed_level)
+            {
+                audioManager.Play("Pattern_Single_Note", 1f + ((ballMovingAlongPatternIndex - 1) * 0.1f));
+            }
+            else if (GameManager.GetMode() == GameManager.Mode.failed_level)
+            {
+                audioManager.Play("Pattern_Single_Note", 1f + ((ballMovingAlongPatternIndex - 1) * 0.1f));
+            }
         }
         else if (firstBounceYet && lastYVelocity < 0 && ball.GetRigidbody().velocity.y > 0)
         {
-            audioManager.Play("Pattern_Single_Note", 1f + ((ballMovingAlongPatternIndex - 1) * 0.1f));
             if (GameManager.GetMode() == GameManager.Mode.gameplay)
             {
+                audioManager.Play("Pattern_Single_Note", 1f + ((ballMovingAlongPatternIndex - 1) * 0.1f));
                 // Check if there are bounces remaining on this platform
-                if (platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].GetNumBouncesRemaining() > 0)
+                if (ball.GetWhichPlatfromOnX() >= 0 && ball.GetWhichPlatfromOnX() < numberPlatformsX 
+                    && ball.GetWhichPlatfromOnZ() >= 0 && ball.GetWhichPlatfromOnZ() < numberPlatformsZ)
                 {
-                    // Bounces Remaining
-                    platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].SubtractOneBounce();
+                    if (platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].GetNumBouncesRemaining() > 0)
+                    {
+                        // Bounces Remaining
+                        platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].SubtractOneBounce();
+                    }
+                    else
+                    {
+                        // No Bounces Remaining
+                        BallMadeWrongMove();
+                    }
+                    numBouncesLeftText.text = platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].GetNumBouncesRemaining().ToString();
                 }
-                else
-                {
-                    // No Bounces Remaining
-                    BallMadeWrongMove();
-                }
-                numBouncesLeftText.text = platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].GetNumBouncesRemaining().ToString();
             }
             else if (GameManager.GetMode() == GameManager.Mode.failed_level ||
                 GameManager.GetMode() == GameManager.Mode.completed_level)
@@ -1098,36 +1117,36 @@ public class EntirePlane : MonoBehaviour
                 mySwipeDetector.rightSwipe = false;
             }
 
-            //if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
-            //{
-            //    Debug.Log("Clicked");
-            //    if (!changingPlatforms)
-            //    {
-            //        changePlatformsOnNextBounce = true;
-            //        ball.SetDirectionMoving(Ball.MOVING_FORWARD);
-            //        cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
-            //    }
-            //}
+            if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
+            {
+                Debug.Log("Clicked");
+                if (!changingPlatforms)
+                {
+                    changePlatformsOnNextBounce = true;
+                    ball.SetDirectionMoving(Ball.MOVING_FORWARD);
+                    cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
+                }
+            }
 
-            //if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
-            //{
-            //    Debug.Log("Clicked");
-            //    if (!changingPlatforms)
-            //    {
-            //        changePlatformsOnNextBounce = true;
-            //        ball.SetDirectionMoving(Ball.MOVING_RIGHT);
-            //    }
-            //}
+            if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
+            {
+                Debug.Log("Clicked");
+                if (!changingPlatforms)
+                {
+                    changePlatformsOnNextBounce = true;
+                    ball.SetDirectionMoving(Ball.MOVING_RIGHT);
+                }
+            }
 
-            //if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
-            //{
-            //    Debug.Log("Clicked");
-            //    if (!changingPlatforms)
-            //    {
-            //        changePlatformsOnNextBounce = true;
-            //        ball.SetDirectionMoving(Ball.MOVING_LEFT);
-            //    }
-            //}
+            if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
+            {
+                Debug.Log("Clicked");
+                if (!changingPlatforms)
+                {
+                    changePlatformsOnNextBounce = true;
+                    ball.SetDirectionMoving(Ball.MOVING_LEFT);
+                }
+            }
         }
     }
 
@@ -1146,6 +1165,7 @@ public class EntirePlane : MonoBehaviour
             if (currentX > numberPlatformsX-1 || currentX < 0 || currentZ > numberPlatformsZ || currentZ < 0)
             {
                 ballWillFallOffEdge = true;
+                Debug.Log("Ball falling off edge");
                 return;
             }
 
@@ -1205,12 +1225,20 @@ public class EntirePlane : MonoBehaviour
     public void HandleNewPlatformBounce()
     {
         // Set New Platform to have ball on platform
-        platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].SetBallOnPlatform(true, ballWillLandOnWrongPlatform);
+        if (ball.GetWhichPlatfromOnX()>=0 && ball.GetWhichPlatfromOnX() < numberPlatformsX
+            && ball.GetWhichPlatfromOnZ()>=0 && ball.GetWhichPlatfromOnZ() < numberPlatformsZ)
+        {
+            platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].SetBallOnPlatform(true, ballWillLandOnWrongPlatform);
+        }
 
         // Set previous platform the ball was on to false for ballOnPlatform attribute
-        if (ball.GetPreviousPlatformX() != -1 && ball.GetPreviousPlatformZ() != -1)
+        if (ball.GetPreviousPlatformX() != int.MinValue && ball.GetPreviousPlatformZ() != int.MinValue)
         {
-            platforms[ball.GetPreviousPlatformX()][ball.GetPreviousPlatformZ()].SetBallOnPlatform(false, ballWillLandOnWrongPlatform);
+            if (ball.GetPreviousPlatformX() >= 0 && ball.GetPreviousPlatformX() < numberPlatformsX
+                && ball.GetPreviousPlatformZ() >= 0 && ball.GetPreviousPlatformZ() < numberPlatformsZ)
+            {
+                platforms[ball.GetPreviousPlatformX()][ball.GetPreviousPlatformZ()].SetBallOnPlatform(false, ballWillLandOnWrongPlatform);
+            }
         }
     }
 
@@ -1342,6 +1370,9 @@ public class EntirePlane : MonoBehaviour
         }
         else
         {
+            // Play Music
+            audioManager.Play("Menu_Music", 1f);
+
             // Show Game Fail UI
             gameFailScoreText.text = "Your Score: " + GameManager.GetCurrentNumPoints();
             if (GameManager.GAME_DIFFICULTY == 1)
@@ -1497,7 +1528,6 @@ public class EntirePlane : MonoBehaviour
         // Show the Level Complete Text
         if (levelCompleteText != null)
         {
-            levelCompleteText.text = "Level Complete!!!";
             levelCompleteUI.SetActive(true);
         }
         GameManager.SetMode(GameManager.Mode.completed_level);

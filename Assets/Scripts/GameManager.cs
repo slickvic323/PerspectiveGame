@@ -45,7 +45,6 @@ public static class GameManager
 
     public enum DIFFICULTY
     {
-        EASY,
         MEDIUM,
         HARD
     }
@@ -114,7 +113,7 @@ public static class GameManager
     {
         mode = Mode.pattern_animation_showing;
         GAME_DIFFICULTY = PlayerPrefs.GetInt("Difficulty", (int)DIFFICULTY.MEDIUM);
-        numLives = 1;
+        numLives = 3;
         currentLevelNumber = 1;
         levelDifficulty = 1;
         gameScore = 0;

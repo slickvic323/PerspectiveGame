@@ -68,10 +68,10 @@ public class Ball
 
     public Ball(int directionFacing)
     {
-        whichPlatformOnX = -1;
-        whichPlatformOnZ = -1;
-        previousPlatformX = -1;
-        previousPlatformZ = -1;
+        whichPlatformOnX = int.MinValue;
+        whichPlatformOnZ = int.MinValue;
+        previousPlatformX = int.MinValue;
+        previousPlatformZ = int.MinValue;
 
         directionMoving = NOT_MOVING;
         this.directionFacing = directionFacing;
@@ -156,7 +156,7 @@ public class Ball
      */
     public void SetWhichPlatformOn(int whichX, int whichZ)
     {
-        if (whichPlatformOnX != -1 && whichPlatformOnZ != -1)
+        if (whichPlatformOnX != int.MinValue && whichPlatformOnZ != int.MinValue)
         {
             previousPlatformX = whichPlatformOnX;
             previousPlatformZ = whichPlatformOnZ;

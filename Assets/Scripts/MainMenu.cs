@@ -6,6 +6,8 @@ using UnityEngine.Video;
 
 public class MainMenu : MonoBehaviour
 {
+    GameObject playButton;
+
     GameObject soundEffectsToggleButton;
 
     GameObject musicToggleButton;
@@ -18,7 +20,7 @@ public class MainMenu : MonoBehaviour
 
     GameObject titleFolder;
 
-    Button difficultyButtonEasy, difficultyButtonMedium, difficultyButtonHard;
+    Button difficultyButtonMedium, difficultyButtonHard;
 
     AudioManager audioManagerInstance;
 
@@ -35,7 +37,6 @@ public class MainMenu : MonoBehaviour
 
     private enum DIFFICULTY
     {
-        EASY,
         MEDIUM,
         HARD
     }
@@ -50,16 +51,21 @@ public class MainMenu : MonoBehaviour
 
     private bool musicEnabled;
 
-    private GameObject patternVid, forwardVid, rightVid, leftVid;
+    private GameObject patternVid, forwardVid, rightVid, leftVid, keepInMindImage;
     private GameObject slideNumText;
     private GameObject tutorialTextInstruction;
     private int currentTutorialSlideNum;
+
+    private GameObject loadingVideoText;
 
     /**
      * Called when MainMenu Object is created
      */
     private void Start()
     {
+        playButton = GameObject.Find("PlayButton");
+        //playButton.GetComponent<Button>().GetComponent<Material>().color = Color.black;
+
         // This value is true until the difficulty button has been set. Prevents button click sound from playing on startup.
         firstDifficultyClick = true;
 
@@ -68,7 +74,7 @@ public class MainMenu : MonoBehaviour
         tutorialMenu = GameObject.Find("TutorialMenu");
         titleFolder = GameObject.Find("Title Folder");
         audioManagerInstance = GameObject.FindWithTag("AudioManager").GetComponent<AudioManager>();
-        audioManagerInstance.Play("Menu_Music", 1);
+        audioManagerInstance.Play("Menu_Music", 1f);
         soundEffectsEnabled = (PlayerPrefs.GetInt("SoundEffectsEnabled", 1) == 1);
         musicEnabled = (PlayerPrefs.GetInt("MusicEnabled", 1) == 1);
         toggleOnSprite = Resources.Load<Sprite>("Images/Toggle_On");
@@ -101,19 +107,12 @@ public class MainMenu : MonoBehaviour
         highScoreMenu.SetActive(false);
 
 
-        difficultyButtonEasy = GameObject.Find("DifficultyButton(Easy)").GetComponent<Button>();
-        difficultyButtonEasy.gameObject.SetActive(false);
         difficultyButtonMedium = GameObject.Find("DifficultyButton(Medium)").GetComponent<Button>();
         difficultyButtonHard = GameObject.Find("DifficultyButton(Hard)").GetComponent<Button>();
 
         difficultySelected = PlayerPrefs.GetInt("Difficulty", (int)DIFFICULTY.MEDIUM);
         switch(difficultySelected)
         {
-            case ((int)DIFFICULTY.EASY):
-                {
-                    ClickDifficultyButtonEasy();
-                    break;
-                }
             case ((int)DIFFICULTY.MEDIUM):
                 {
                     ClickDifficultyButtonMedium();
@@ -133,7 +132,6 @@ public class MainMenu : MonoBehaviour
         // Allows button press sound to be played on all subsequent clicks of difficulty buttons
         firstDifficultyClick = false;
 
-        difficultyButtonEasy.onClick.AddListener(ClickDifficultyButtonEasy);
         difficultyButtonMedium.onClick.AddListener(ClickDifficultyButtonMedium);
         difficultyButtonHard.onClick.AddListener(ClickDifficultyButtonHard);
 
@@ -142,18 +140,52 @@ public class MainMenu : MonoBehaviour
         forwardVid = GameObject.Find("Tutorial Go Forward Video");
         rightVid = GameObject.Find("Tutorial Go Right Video");
         leftVid = GameObject.Find("Tutorial Go Left Video");
+        keepInMindImage = GameObject.Find("Image Keep in Mind");
 
         patternVid.SetActive(false);
         forwardVid.SetActive(false);
         rightVid.SetActive(false);
         leftVid.SetActive(false);
+        keepInMindImage.SetActive(false);
 
         tutorialTextInstruction = GameObject.Find("Text Instruction");
         tutorialTextInstruction.GetComponent<TextMeshProUGUI>().text = "";
 
         slideNumText = GameObject.Find("Text Slide Number");
+        loadingVideoText = GameObject.Find("Loading Video Text");
+        loadingVideoText.SetActive(false);
 
         tutorialMenu.SetActive(false);
+    }
+
+    private void Update()
+    {
+        if (tutorialMenu.activeSelf)
+        {
+            // Check if should display loading text for video
+            if (!loadingVideoText.activeSelf)
+            {
+                if ((patternVid.activeSelf && !patternVid.GetComponent<VideoPlayer>().isPlaying)
+                    || (forwardVid.activeSelf && !forwardVid.GetComponent<VideoPlayer>().isPlaying)
+                    || (rightVid.activeSelf && !rightVid.GetComponent<VideoPlayer>().isPlaying)
+                    || (leftVid.activeSelf && !leftVid.GetComponent<VideoPlayer>().isPlaying))
+                {
+                    loadingVideoText.SetActive(true);
+                }
+            }
+            else
+            {
+                // Check if should stop displaying loading text for video
+                if ((patternVid.activeSelf && patternVid.GetComponent<VideoPlayer>().isPlaying)
+                    || (forwardVid.activeSelf && forwardVid.GetComponent<VideoPlayer>().isPlaying)
+                    || (rightVid.activeSelf && rightVid.GetComponent<VideoPlayer>().isPlaying)
+                    || (leftVid.activeSelf && leftVid.GetComponent<VideoPlayer>().isPlaying))
+                {
+                    loadingVideoText.SetActive(false);
+                }
+            }
+
+        }
     }
 
     /**
@@ -292,20 +324,6 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    public void ClickDifficultyButtonEasy()
-    {
-        if (!firstDifficultyClick)
-        {
-            FindObjectOfType<AudioManager>().Play("Button_Press", 0.5f);
-        }
-        difficultySelected = (int)DIFFICULTY.EASY;
-        PlayerPrefs.SetInt("Difficulty", difficultySelected);
-
-        SelectDifficultyButton(difficultyButtonEasy);
-        DeselectDifficultyButton(difficultyButtonMedium);
-        DeselectDifficultyButton(difficultyButtonHard);
-    }
-
     public void ClickDifficultyButtonMedium()
     {
         if (!firstDifficultyClick)
@@ -315,7 +333,6 @@ public class MainMenu : MonoBehaviour
         difficultySelected = (int)DIFFICULTY.MEDIUM;
         PlayerPrefs.SetInt("Difficulty", difficultySelected);
 
-        DeselectDifficultyButton(difficultyButtonEasy);
         SelectDifficultyButton(difficultyButtonMedium);
         DeselectDifficultyButton(difficultyButtonHard);
 
@@ -330,7 +347,6 @@ public class MainMenu : MonoBehaviour
         difficultySelected = (int)DIFFICULTY.HARD;
         PlayerPrefs.SetInt("Difficulty", difficultySelected);
 
-        DeselectDifficultyButton(difficultyButtonEasy);
         DeselectDifficultyButton(difficultyButtonMedium);
         SelectDifficultyButton(difficultyButtonHard);
     }
@@ -357,7 +373,7 @@ public class MainMenu : MonoBehaviour
 
             currentTutorialSlideNum = 1;
             LoadSlide(currentTutorialSlideNum, -1);
-            slideNumText.GetComponent<TextMeshProUGUI>().text = "1/4";
+            slideNumText.GetComponent<TextMeshProUGUI>().text = "1/5";
         }
         else
         {
@@ -369,6 +385,7 @@ public class MainMenu : MonoBehaviour
             forwardVid.SetActive(false);
             rightVid.SetActive(false);
             leftVid.SetActive(false);
+            keepInMindImage.SetActive(false);
 
             titleFolder.SetActive(true);
         }
@@ -403,6 +420,11 @@ public class MainMenu : MonoBehaviour
                         leftVid.SetActive(false);
                         break;
                     }
+                case (5):
+                    {
+                        keepInMindImage.SetActive(false);
+                        break;
+                    }
                 default:
                     Debug.Log("Error with loading slides");
                     break;
@@ -416,28 +438,34 @@ public class MainMenu : MonoBehaviour
                 {
                     patternVid.SetActive(true);
                     patternVid.GetComponent<VideoPlayer>().Play();
-                    tutorialTextInstruction.GetComponent<TextMeshProUGUI>().text = "Memorize the Given Pattern";
+                    tutorialTextInstruction.GetComponent<TextMeshProUGUI>().text = "Memorize the Given Pattern. Ultimate Goal is to Re-Create Pattern.";
                     break;
                 }
             case (2):
                 {
                     forwardVid.SetActive(true);
                     forwardVid.GetComponent<VideoPlayer>().Play();
-                    tutorialTextInstruction.GetComponent<TextMeshProUGUI>().text = "Swipe Up to Move Forward";
+                    tutorialTextInstruction.GetComponent<TextMeshProUGUI>().text = "Swipe UP to Move Forward";
                     break;
                 }
             case (3):
                 {
                     rightVid.SetActive(true);
                     rightVid.GetComponent<VideoPlayer>().Play();
-                    tutorialTextInstruction.GetComponent<TextMeshProUGUI>().text = "Swipe Right to Turn Right";
+                    tutorialTextInstruction.GetComponent<TextMeshProUGUI>().text = "Swipe RIGHT to Turn Right";
                     break;
                 }
             case (4):
                 {
                     leftVid.SetActive(true);
                     leftVid.GetComponent<VideoPlayer>().Play();
-                    tutorialTextInstruction.GetComponent<TextMeshProUGUI>().text = "Swipe Left to Turn Left";
+                    tutorialTextInstruction.GetComponent<TextMeshProUGUI>().text = "Swipe LEFT to Turn Left";
+                    break;
+                }
+            case (5):
+                {
+                    keepInMindImage.SetActive(true);
+                    tutorialTextInstruction.GetComponent<TextMeshProUGUI>().text = "Keep in Mind How Many Lives Left and How Many Bounces Remain Before You Must Switch Platforms";
                     break;
                 }
             default:
@@ -452,21 +480,21 @@ public class MainMenu : MonoBehaviour
         currentTutorialSlideNum--;
         if (currentTutorialSlideNum < 1)
         {
-            currentTutorialSlideNum = 4;
+            currentTutorialSlideNum = 5;
         }
         LoadSlide(currentTutorialSlideNum, prevSlideNum);
-        slideNumText.GetComponent<TextMeshProUGUI>().text = currentTutorialSlideNum + "/4";
+        slideNumText.GetComponent<TextMeshProUGUI>().text = currentTutorialSlideNum + "/5";
     }
 
     public void NextButtonClicked()
     {
         int prevSlideNum = currentTutorialSlideNum;
         currentTutorialSlideNum++;
-        if (currentTutorialSlideNum > 4)
+        if (currentTutorialSlideNum > 5)
         {
             currentTutorialSlideNum = 1;
         }
         LoadSlide(currentTutorialSlideNum, prevSlideNum);
-        slideNumText.GetComponent<TextMeshProUGUI>().text = currentTutorialSlideNum + "/4";
+        slideNumText.GetComponent<TextMeshProUGUI>().text = currentTutorialSlideNum + "/5";
     }
 }

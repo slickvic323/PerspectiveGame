@@ -28,7 +28,7 @@ public class TitleCameraBehaviour : MonoBehaviour
 
 
     readonly float TOP_POS_X = 29.8f;
-    readonly float TOP_POS_Y = 110f;
+    readonly float TOP_POS_Y = 120f;
     readonly float TOP_POS_Z = -30f;
     
 
