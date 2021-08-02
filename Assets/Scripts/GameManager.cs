@@ -129,6 +129,7 @@ public static class GameManager
         mode = Mode.pattern_animation_showing;
         if (!failedPreviousAttempt)
         {
+            currentLevelNumber++;
             if (levelDifficulty < 10)
             {
                 switch (levelDifficulty)
@@ -202,109 +203,6 @@ public static class GameManager
      */
     private static void DetermineGridSize()
     {
-        //switch (GAME_DIFFICULTY)
-        //{
-        //    case ((int)DIFFICULTY.EASY):
-        //        {
-        //            switch (levelDifficulty)
-        //            {
-        //                case (1):
-        //                    numXPlatforms = 2;
-        //                    numZPlatforms = 3;
-        //                    break;
-        //                case (2):
-        //                    numXPlatforms = 3;
-        //                    numZPlatforms = 3;
-        //                    break;
-        //                case (3):
-        //                    numXPlatforms = 3;
-        //                    numZPlatforms = 4;
-        //                    break;
-        //                case (4):
-        //                    numXPlatforms = 4;
-        //                    numZPlatforms = 4;
-        //                    break;
-        //                case (5):
-        //                    numXPlatforms = 4;
-        //                    numZPlatforms = 5;
-        //                    break;
-        //                default:
-        //                    numXPlatforms = 4;
-        //                    numZPlatforms = 5;
-        //                    break;
-        //            }
-        //            break;
-        //        }
-        //    case ((int)DIFFICULTY.MEDIUM):
-        //        {
-        //            switch (levelDifficulty)
-        //            {
-        //                case (1):
-        //                    numXPlatforms = 3;
-        //                    numZPlatforms = 4;
-        //                    break;
-        //                case (2):
-        //                    numXPlatforms = 4;
-        //                    numZPlatforms = 4;
-        //                    break;
-        //                case (3):
-        //                    numXPlatforms = 4;
-        //                    numZPlatforms = 5;
-        //                    break;
-        //                case (4):
-        //                    numXPlatforms = 5;
-        //                    numZPlatforms = 5;
-        //                    break;
-        //                case (5):
-        //                    numXPlatforms = 5;
-        //                    numZPlatforms = 6;
-        //                    break;
-        //                case (6):
-        //                    numXPlatforms = 6
-        //                default:
-        //                    numXPlatforms = 6;
-        //                    numZPlatforms = 7;
-        //                    break;
-        //            }
-        //            break;
-        //        }
-        //    case ((int)DIFFICULTY.HARD):
-        //        {
-        //            switch (levelDifficulty)
-        //            {
-        //                case (1):
-        //                    numXPlatforms = 4;
-        //                    numZPlatforms = 5;
-        //                    break;
-        //                case (2):
-        //                    numXPlatforms = 5;
-        //                    numZPlatforms = 5;
-        //                    break;
-        //                case (3):
-        //                    numXPlatforms = 5;
-        //                    numZPlatforms = 6;
-        //                    break;
-        //                case (4):
-        //                    numXPlatforms = 6;
-        //                    numZPlatforms = 6;
-        //                    break;
-        //                case (5):
-        //                    numXPlatforms = 6;
-        //                    numZPlatforms = 7;
-        //                    break;
-        //                default:
-        //                    numXPlatforms = 6;
-        //                    numZPlatforms = 7;
-        //                    break;
-        //            }
-        //            break;
-        //        }
-        //    default:
-        //        {
-        //            Debug.Log("Error with Determining Grid Size. Difficulty not set properly");
-        //            break;
-        //        }
-        //}
         switch (levelDifficulty)
         {
             case (1):
@@ -389,14 +287,6 @@ public static class GameManager
     private static void AddPoints (uint additionalPoints)
     {
         gameScore += additionalPoints;
-    }
-
-    /*
-     * Subtracts given points from current score
-     */
-    private static void SubtractPoints (uint numPointsLess)
-    {
-        gameScore -= numPointsLess;
     }
 
     /*

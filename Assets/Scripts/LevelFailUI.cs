@@ -19,6 +19,7 @@ public class LevelFailUI : MonoBehaviour
     public void GoToMainMenu()
     {
         audioManager.Stop("Menu_Music");
+        audioManager.Stop("Between_Levels_Drums");
         SceneManager.LoadScene(0);
     }
 
@@ -27,6 +28,7 @@ public class LevelFailUI : MonoBehaviour
      */
     public void ReloadSameLevel()
     {
+        audioManager.Stop("Between_Levels_Drums");
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 

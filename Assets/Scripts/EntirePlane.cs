@@ -231,8 +231,6 @@ public class EntirePlane : MonoBehaviour
     GameObject quitGameUI;
     AudioManager audioManager;
 
-    Text levelCompleteText;
-    Text levelFailText;
     Text gameFailScoreText;
     TextMeshProUGUI numBouncesLeftText;
     Text pointsText;
@@ -244,6 +242,13 @@ public class EntirePlane : MonoBehaviour
     private TMP_InputField highScoreNameInput;
     private GameObject[] hsDataRankNumsText, hsDataPlayersText, hsDataScoresText;
     private int highscoreSet = -1;
+
+    private GameObject completeMenuLevelNum, completeMenuGridSize, completeMenuPoints;
+    private GameObject failMenuLevelNum, failMenuGridSize, failMenuPoints;
+    private GameObject levelInfoUI, levelInfoText;
+
+    private float timerBetweenLevelsMusic;
+    private bool waitingToPlayBetweenLevelMusic;
 
 
     // Start is called before the first frame update
@@ -264,6 +269,8 @@ public class EntirePlane : MonoBehaviour
         cameraInfo = gameObject.AddComponent(typeof(CameraInfo)) as CameraInfo;
         aerialView = true;
         previousMove = 0;
+
+        waitingToPlayBetweenLevelMusic = false;
 
         switch (GameManager.GetLevelPatternDirection())
         {
@@ -309,12 +316,16 @@ public class EntirePlane : MonoBehaviour
         if (myCanvas != null)
         {
             levelCompleteUI = GameObject.FindWithTag("LevelComplete");
+            completeMenuLevelNum = GameObject.Find("LevelNumberTextComplete");
+            completeMenuGridSize = GameObject.Find("GridSizeTextComplete");
+            completeMenuPoints = GameObject.Find("TotalPointsTextComplete");
             levelCompleteUI.SetActive(false);
-            levelCompleteText = levelCompleteUI.GetComponentInChildren<Text>();
 
             levelFailUI = GameObject.FindWithTag("LevelFail");
+            failMenuLevelNum = GameObject.Find("LevelNumberTextFail");
+            failMenuGridSize = GameObject.Find("GridSizeTextFail");
+            failMenuPoints = GameObject.Find("TotalPointsTextFail");
             levelFailUI.SetActive(false);
-            levelFailText = levelFailUI.GetComponentInChildren<Text>();
 
             // Game Fail Instantiation
             gameFailUI = GameObject.FindWithTag("GameFail");
@@ -372,6 +383,10 @@ public class EntirePlane : MonoBehaviour
             quitGameUI = GameObject.Find("QuitGameUI");
             quitGameUI.SetActive(false);
 
+            levelInfoUI = GameObject.Find("LevelInfoUI");
+            levelInfoText = GameObject.Find("LevelInfoText");
+            levelInfoUI.SetActive(false);
+
             audioManager = FindObjectOfType<AudioManager>();
         }
 
@@ -392,15 +407,15 @@ public class EntirePlane : MonoBehaviour
         camouflageFakePlatformsInProgress = false;
 
         AddFakePlatforms();
+
+        // Populate the Level Info
+        levelInfoText.GetComponent<Text>().text = "Level: " + GameManager.GetCurrentLevelNumber() + ", Grid Size: " + numberPlatformsX + "x" + numberPlatformsZ;
+        levelInfoUI.SetActive(true);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (ball!=null)
-        {
-            Debug.Log(ball.GetWhichPlatfromOnX());
-        }
         if (GameManager.GetMode() == GameManager.Mode.gameplay)
         {
             mySwipeDetector.Update();
@@ -427,6 +442,12 @@ public class EntirePlane : MonoBehaviour
         if (camouflageFakePlatformsInProgress)
         {
             CamouflageFakePlatforms();
+        }
+
+        if (waitingToPlayBetweenLevelMusic && Time.time - timerBetweenLevelsMusic >= 1.2f)
+        {
+            audioManager.Play("Between_Levels_Drums", 1f);
+            waitingToPlayBetweenLevelMusic = false;
         }
     }
 
@@ -502,14 +523,6 @@ public class EntirePlane : MonoBehaviour
             {
                 audioManager.Play("Pattern_Single_Note", 1f + ((ballMovingAlongPatternIndex - 1) * 0.1f));
             }
-            else if (GameManager.GetMode() == GameManager.Mode.completed_level)
-            {
-                audioManager.Play("Pattern_Single_Note", 1f + ((ballMovingAlongPatternIndex - 1) * 0.1f));
-            }
-            else if (GameManager.GetMode() == GameManager.Mode.failed_level)
-            {
-                audioManager.Play("Pattern_Single_Note", 1f + ((ballMovingAlongPatternIndex - 1) * 0.1f));
-            }
         }
         else if (firstBounceYet && lastYVelocity < 0 && ball.GetRigidbody().velocity.y > 0)
         {
@@ -533,12 +546,6 @@ public class EntirePlane : MonoBehaviour
                     numBouncesLeftText.text = platforms[ball.GetWhichPlatfromOnX()][ball.GetWhichPlatfromOnZ()].GetNumBouncesRemaining().ToString();
                 }
             }
-            else if (GameManager.GetMode() == GameManager.Mode.failed_level ||
-                GameManager.GetMode() == GameManager.Mode.completed_level)
-            {
-                // If Failed level or completed level, do not display the number of bounces left Text anymore
-                numBouncesLeftText.text = "";
-            }
 
             ball.GetRigidbody().velocity = new Vector3(ball.GetRigidbody().velocity.x, firstBounceVelocity, ball.GetRigidbody().velocity.z);
 
@@ -552,7 +559,10 @@ public class EntirePlane : MonoBehaviour
             }
             else if (ballWillLandOnFinalPlatform)
             {
-                ShowCompletedLevelText();
+                if (!levelCompleteUI.activeSelf)
+                {
+                    ShowCompletedLevelText();
+                }
             }
             
             if (changePlatformsOnNextBounce && !changingPlatforms)
@@ -1362,10 +1372,16 @@ public class EntirePlane : MonoBehaviour
             livesText.text = GameManager.GetNumLivesRemaining() + " Life";
         }
 
+        bouncesLeftUI.SetActive(false);
         if (GameManager.GetNumLivesRemaining() > 0)
         {
+            audioManager.Play("Level_Fail_Sound", 1f);
+            timerBetweenLevelsMusic = Time.time;
+            waitingToPlayBetweenLevelMusic = true;
             // Show Level Fail UI
-            levelFailText.text = "You Made the Wrong Move";
+            failMenuLevelNum.GetComponent<Text>().text = "Level Number: " + GameManager.GetCurrentLevelNumber();
+            failMenuGridSize.GetComponent<Text>().text = "Grid Size: " + numberPlatformsX + "x" + numberPlatformsZ;
+            failMenuPoints.GetComponent<Text>().text = "Points: " + GameManager.GetCurrentNumPoints() + "pts";
             levelFailUI.SetActive(true);
         }
         else
@@ -1462,7 +1478,7 @@ public class EntirePlane : MonoBehaviour
                     audioManager.Play("Pattern_Single_Note", 1f + (patternAnimationIndex * (4f/patternList.Count)));
                 }
                 Platform nextPlatformInAnimation = patternList[patternAnimationIndex];
-                nextPlatformInAnimation.GetGameObject().GetComponent<Renderer>().material.color = Color.blue;
+                nextPlatformInAnimation.GetGameObject().GetComponent<Renderer>().material.color = new Color(0f, 1f, 1f, 1f);
                 // If in hard mode, only show a maximum of 1/2 the platforms at a time of the pattern
                 //if (GameManager.GAME_DIFFICULTY == (int)GameManager.DIFFICULTY.HARD)
                 //{
@@ -1516,6 +1532,9 @@ public class EntirePlane : MonoBehaviour
                 //        platforms.Add(temp);
                 //    }
                 //}
+
+                // Don't show level info UI anymore
+                levelInfoUI.SetActive(false);
             }
         }
     }
@@ -1525,11 +1544,15 @@ public class EntirePlane : MonoBehaviour
      */
     public void ShowCompletedLevelText()
     {
+        audioManager.Play("Level_Complete_Sound", 1f);
+        timerBetweenLevelsMusic = Time.time;
+        waitingToPlayBetweenLevelMusic = true;
         // Show the Level Complete Text
-        if (levelCompleteText != null)
-        {
-            levelCompleteUI.SetActive(true);
-        }
+        completeMenuLevelNum.GetComponent<Text>().text = "Level Number: " + GameManager.GetCurrentLevelNumber();
+        completeMenuGridSize.GetComponent<Text>().text = "Grid Size: " + numberPlatformsX + "x" + numberPlatformsZ;
+        completeMenuPoints.GetComponent<Text>().text = "Points: " + GameManager.GetCurrentNumPoints() + "pts";
+        bouncesLeftUI.SetActive(false);
+        levelCompleteUI.SetActive(true);
         GameManager.SetMode(GameManager.Mode.completed_level);
         mySwipeDetector.SetSwipeDetectorActivated(false);
     }

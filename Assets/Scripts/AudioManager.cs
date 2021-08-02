@@ -50,14 +50,17 @@ public class AudioManager : MonoBehaviour
         bool playSound = true;
         // If a sound effect noise, check if sound effects are enabled
         if (name.Equals("Button_Press")
-            || name.Equals("Pattern_Single_Note"))
+            || name.Equals("Pattern_Single_Note")
+            || name.Equals("Level_Complete_Sound")
+            || name.Equals("Level_Fail_Sound"))
         {
             if (!soundEffectsEnabled)
             {
                 playSound = false;
             }
         }
-        else if (name.Equals("Menu_Music"))
+        else if (name.Equals("Menu_Music")
+            || name.Equals("Between_Levels_Drums"))
         {
             if (!musicEnabled)
             {

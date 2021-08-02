@@ -158,7 +158,6 @@ public class Pattern
 
         foreach (Platform platform in pattern)
         {
-            // platform.GetGameObject().GetComponent<Renderer>().material.color = Color.blue;
             platform.SetInPattern(true);
         }
 
@@ -193,7 +192,6 @@ public class Pattern
 
         foreach (Platform platform in pattern)
         {
-            // platform.GetGameObject().GetComponent<Renderer>().material.color = Color.blue;
             platform.SetInPattern(true);
         }
 
