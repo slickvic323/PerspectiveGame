@@ -1133,36 +1133,36 @@ public class EntirePlane : MonoBehaviour
                 mySwipeDetector.rightSwipe = false;
             }
 
-            if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
-            {
-                Debug.Log("Clicked");
-                if (!changingPlatforms)
-                {
-                    changePlatformsOnNextBounce = true;
-                    ball.SetDirectionMoving(Ball.MOVING_FORWARD);
-                    cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
-                }
-            }
+            //if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
+            //{
+            //    Debug.Log("Clicked");
+            //    if (!changingPlatforms)
+            //    {
+            //        changePlatformsOnNextBounce = true;
+            //        ball.SetDirectionMoving(Ball.MOVING_FORWARD);
+            //        cameraInfo.SetMode(CameraInfo.FORWARD_MOVE);
+            //    }
+            //}
 
-            if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
-            {
-                Debug.Log("Clicked");
-                if (!changingPlatforms)
-                {
-                    changePlatformsOnNextBounce = true;
-                    ball.SetDirectionMoving(Ball.MOVING_RIGHT);
-                }
-            }
+            //if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
+            //{
+            //    Debug.Log("Clicked");
+            //    if (!changingPlatforms)
+            //    {
+            //        changePlatformsOnNextBounce = true;
+            //        ball.SetDirectionMoving(Ball.MOVING_RIGHT);
+            //    }
+            //}
 
-            if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
-            {
-                Debug.Log("Clicked");
-                if (!changingPlatforms)
-                {
-                    changePlatformsOnNextBounce = true;
-                    ball.SetDirectionMoving(Ball.MOVING_LEFT);
-                }
-            }
+            //if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
+            //{
+            //    Debug.Log("Clicked");
+            //    if (!changingPlatforms)
+            //    {
+            //        changePlatformsOnNextBounce = true;
+            //        ball.SetDirectionMoving(Ball.MOVING_LEFT);
+            //    }
+            //}
         }
     }
 

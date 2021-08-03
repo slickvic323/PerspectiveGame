@@ -28,6 +28,8 @@ public class MainMenu : MonoBehaviour
 
     bool firstDifficultyClick;
 
+    private GameObject backgroundBlue;
+
     GameObject[] hsNormalPlayersText;
     GameObject[] hsNormalScoresText;
     GameObject[] hsHardPlayersText;
@@ -64,6 +66,8 @@ public class MainMenu : MonoBehaviour
         // This value is true until the difficulty button has been set. Prevents button click sound from playing on startup.
         firstDifficultyClick = true;
 
+        backgroundBlue = GameObject.Find("Background_Blue");
+        backgroundBlue.SetActive(false);
         optionsMenu = GameObject.Find("OptionsMenu");
         highScoreMenu = GameObject.Find("HighScoreMenu");
         tutorialMenu = GameObject.Find("TutorialMenu");
@@ -199,6 +203,15 @@ public class MainMenu : MonoBehaviour
      */
     public void OptionsMenuToggle()
     {
+        if (optionsMenu.activeSelf)
+        {
+            backgroundBlue.SetActive(true);
+        }
+        else
+        {
+            backgroundBlue.SetActive(false);
+        }
+
         if (soundEffectsEnabled)
         {
             FindObjectOfType<AudioManager>().Play("Button_Press", 0.5f);
@@ -216,6 +229,7 @@ public class MainMenu : MonoBehaviour
 
         if (highScoreMenu.activeSelf)
         {
+            backgroundBlue.SetActive(true);
             //Load in the high score data
             for (int i = 0; i < 3; i++)
             {
@@ -224,6 +238,10 @@ public class MainMenu : MonoBehaviour
                 hsHardPlayersText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetString((int)GameManager.DIFFICULTY.HARD + "highscoreName" + (i + 1), "***");
                 hsHardScoresText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetInt((int)GameManager.DIFFICULTY.HARD + "highscore" + (i + 1), 0).ToString();
             }
+        }
+        else
+        {
+            backgroundBlue.SetActive(false);
         }
     }
     public void ToggleSoundEffects()

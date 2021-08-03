@@ -63,10 +63,12 @@
     <Compile Include="Assets\Scripts\LevelCompleteUI.cs" />
     <Compile Include="Assets\Scripts\Ball.cs" />
     <Compile Include="Assets\Scripts\ArrowHandler.cs" />
+    <Compile Include="Assets\Scripts\TitleCameraBehaviour.cs" />
     <Compile Include="Assets\Scripts\AudioManager.cs" />
     <Compile Include="Assets\Scripts\Pattern.cs" />
     <Compile Include="Assets\Scripts\LevelFailUI.cs" />
-    <Compile Include="Assets\Scripts\TitleCameraBehaviour.cs" />
+    <Compile Include="Assets\Scripts\SafeArea.cs" />
+    <Compile Include="Assets\Scripts\TopUnsafeArea.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro.cginc" />
@@ -747,6 +749,9 @@
     </Reference>
     <Reference Include="UnityEngine.Advertisements.Editor">
       <HintPath>Library\ScriptAssemblies\UnityEngine.Advertisements.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.DeviceSimulator.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.DeviceSimulator.Editor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
