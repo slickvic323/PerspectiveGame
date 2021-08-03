@@ -6,8 +6,6 @@ using UnityEngine.Video;
 
 public class MainMenu : MonoBehaviour
 {
-    GameObject playButton;
-
     GameObject soundEffectsToggleButton;
 
     GameObject musicToggleButton;
@@ -63,9 +61,6 @@ public class MainMenu : MonoBehaviour
      */
     private void Start()
     {
-        playButton = GameObject.Find("PlayButton");
-        //playButton.GetComponent<Button>().GetComponent<Material>().color = Color.black;
-
         // This value is true until the difficulty button has been set. Prevents button click sound from playing on startup.
         firstDifficultyClick = true;
 
@@ -197,7 +192,6 @@ public class MainMenu : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         FindObjectOfType<AudioManager>().Play("Button_Press", 0.5f);
         FindObjectOfType<AudioManager>().Stop("Menu_Music");
-        //FindObjectOfType<AudioManager>().SetVolume("Menu_Music", 0.1f);
     }
 
     /**
@@ -225,19 +219,10 @@ public class MainMenu : MonoBehaviour
             //Load in the high score data
             for (int i = 0; i < 3; i++)
             {
-                hsNormalPlayersText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetString("1highscoreName" + (i + 1), "***");
-            }
-            for (int i = 0; i < 3; i++)
-            {
-                hsNormalScoresText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetInt("1highscore" + (i + 1), 0).ToString();
-            }
-            for (int i = 0; i < 3; i++)
-            {
-                hsHardPlayersText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetString("2highscoreName" + (i + 1), "***");
-            }
-            for (int i = 0; i < 3; i++)
-            {
-                hsHardScoresText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetInt("2highscore" + (i + 1), 0).ToString();
+                hsNormalPlayersText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetString((int)GameManager.DIFFICULTY.MEDIUM + "highscoreName" + (i + 1), "***");
+                hsNormalScoresText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetInt((int)GameManager.DIFFICULTY.MEDIUM + "highscore" + (i + 1), 0).ToString();
+                hsHardPlayersText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetString((int)GameManager.DIFFICULTY.HARD + "highscoreName" + (i + 1), "***");
+                hsHardScoresText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetInt((int)GameManager.DIFFICULTY.HARD + "highscore" + (i + 1), 0).ToString();
             }
         }
     }

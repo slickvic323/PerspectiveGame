@@ -390,13 +390,6 @@ public static class GameManager
             tempInnerList.Add(thePattern[i].GetXIndex());
             tempInnerList.Add(thePattern[i].GetZIndex());
             previousPattern.Add(tempInnerList);
-
-            //Platform deepCopyPlatform = new Platform();
-            //deepCopyPlatform.CreateGameObject();
-            //Vector3 deepCopyPosition = new Vector3(thePattern[i].GetXIndex(), 0, thePattern[i].GetZIndex());
-            ////deepCopyPlatform.SetPosition(thePattern[i].GetPosition());
-            //deepCopyPlatform.SetPosition(deepCopyPosition);
-            //previousPattern.Add(deepCopyPlatform);
         }
     }
 

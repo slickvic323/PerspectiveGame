@@ -254,7 +254,6 @@ public class EntirePlane : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //CleanAllHighScores();
         if (GameManager.GetMode() == GameManager.Mode.new_game_setup)
         {
             GameManager.StartNewGame();
@@ -397,6 +396,14 @@ public class EntirePlane : MonoBehaviour
         PLATFORM_GRID_Z_DISTANCE = numberPlatformsZ + 0.7f; //TODO replace with Z Dimension Value of platform
         ballOnNewPlatform = true;
 
+        // Populate the Level Info
+        levelInfoText.GetComponent<Text>().text = "Level: " + GameManager.GetCurrentLevelNumber() + ", Grid Size: " + numberPlatformsX + "x" + numberPlatformsZ;
+        if (GameManager.GetFailedPrevAttempt())
+        {
+            levelInfoText.GetComponent<Text>().text += " (Pattern Retry)";
+        }
+        levelInfoUI.SetActive(true);
+
         CreatePlatforms();
 
         if (aerialView)
@@ -408,9 +415,6 @@ public class EntirePlane : MonoBehaviour
 
         AddFakePlatforms();
 
-        // Populate the Level Info
-        levelInfoText.GetComponent<Text>().text = "Level: " + GameManager.GetCurrentLevelNumber() + ", Grid Size: " + numberPlatformsX + "x" + numberPlatformsZ;
-        levelInfoUI.SetActive(true);
     }
 
     // Update is called once per frame
@@ -557,13 +561,6 @@ public class EntirePlane : MonoBehaviour
                     BallMadeWrongMove();
                 }
             }
-            else if (ballWillLandOnFinalPlatform)
-            {
-                if (!levelCompleteUI.activeSelf)
-                {
-                    ShowCompletedLevelText();
-                }
-            }
             
             if (changePlatformsOnNextBounce && !changingPlatforms)
             {
@@ -706,6 +703,15 @@ public class EntirePlane : MonoBehaviour
                     {
                         pointsText.text = "1000000 pts";
                     }
+
+                    if (ballWillLandOnFinalPlatform)
+                    {
+                        if (!levelCompleteUI.activeSelf)
+                        {
+                            ShowCompletedLevelText();
+                        }
+                    }
+
                     validMoveMade = false;
                 }
 
@@ -1391,11 +1397,11 @@ public class EntirePlane : MonoBehaviour
 
             // Show Game Fail UI
             gameFailScoreText.text = "Your Score: " + GameManager.GetCurrentNumPoints();
-            if (GameManager.GAME_DIFFICULTY == 1)
+            if (GameManager.GAME_DIFFICULTY == (int)GameManager.DIFFICULTY.MEDIUM)
             {
                 difficultyTitleText.text = "Normal Mode HighScores";
             }
-            else if (GameManager.GAME_DIFFICULTY == 2)
+            else if (GameManager.GAME_DIFFICULTY == (int)GameManager.DIFFICULTY.HARD)
             {
                 difficultyTitleText.text = "Hard Mode HighScores";
             }
@@ -1670,17 +1676,6 @@ public class EntirePlane : MonoBehaviour
         {
             PlayerPrefs.SetString(GameManager.GAME_DIFFICULTY.ToString() + "highscoreName" + highscoreSet, newHighScoreNameString);
             hsDataPlayersText[highscoreSet - 1].GetComponent<TextMeshProUGUI>().text = newHighScoreNameString;
-        }
-    }
-
-    public void CleanAllHighScores()
-    {
-        for (int i=0;i<3;i++)
-        {
-            PlayerPrefs.SetInt("1highscore" + (i + 1), 0);
-            PlayerPrefs.SetString("1highscoreName" + (i + 1), "***");
-            PlayerPrefs.SetInt("2highscore" + (i + 1), 0);
-            PlayerPrefs.SetString("2highscoreName" + (i + 1), "***");
         }
     }
 }
