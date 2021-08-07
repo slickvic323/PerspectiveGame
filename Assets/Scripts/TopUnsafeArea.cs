@@ -15,11 +15,6 @@ public class TopUnsafeArea : MonoBehaviour
         safeArea = Screen.safeArea;
         minAnchor = new Vector2(0f, (safeArea.y+safeArea.height)/Screen.height);
 
-        //Debug.Log(safeArea.y);
-        //Debug.Log(safeArea.height);
-        //Debug.Log(Screen.height);
-        //minAnchor.y /= Screen.height;
-
         rectTransform.anchorMin = minAnchor;
     }
 }

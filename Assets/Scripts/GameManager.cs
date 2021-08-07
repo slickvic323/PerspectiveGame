@@ -451,7 +451,6 @@ public static class GameManager
 
     public static void SetAndBumpHighScoreName(string highscoreName, int newRanking)
     {
-        Debug.Log("Setting new highscore name, " + highscoreName + ", at rank " + newRanking);
         string[] currentNames = new string[3];
         int difficulty = GAME_DIFFICULTY;
         for (int i=0;i<3;i++)

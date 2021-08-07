@@ -295,7 +295,6 @@ public class EntirePlane : MonoBehaviour
                 }
             default:
                 {
-                    Debug.Log("Error with setting Camera Direction Facing");
                     cameraInfo.SetDirectionFacing(CameraInfo.FACING_POS_Z);
                     break;
                 }
@@ -399,7 +398,7 @@ public class EntirePlane : MonoBehaviour
         levelInfoText.GetComponent<Text>().text = "Level: " + GameManager.GetCurrentLevelNumber() + ", Grid Size: " + numberPlatformsX + "x" + numberPlatformsZ;
         if (GameManager.GetFailedPrevAttempt())
         {
-            levelInfoText.GetComponent<Text>().text += " (Pattern Retry)";
+            levelInfoText.GetComponent<Text>().text += " (Retry)";
         }
         levelInfoUI.SetActive(true);
 
@@ -538,7 +537,6 @@ public class EntirePlane : MonoBehaviour
                 {
                     BallMadeWrongMove();
                 }
-
                 // Check if there are bounces remaining on this platform
                 if (ball.GetWhichPlatfromOnX() >= 0 && ball.GetWhichPlatfromOnX() < numberPlatformsX 
                     && ball.GetWhichPlatfromOnZ() >= 0 && ball.GetWhichPlatfromOnZ() < numberPlatformsZ)
@@ -1181,7 +1179,7 @@ public class EntirePlane : MonoBehaviour
             int currentX = ball.GetWhichPlatfromOnX();
             int currentZ = ball.GetWhichPlatfromOnZ();
             // Check if falling off the edge
-            if (currentX > numberPlatformsX-1 || currentX < 0 || currentZ > numberPlatformsZ || currentZ < 0)
+            if (currentX > numberPlatformsX-1 || currentX < 0 || currentZ > numberPlatformsZ-1 || currentZ < 0)
             {
                 ballWillFallOffEdge = true;
                 if (GameManager.GAME_DIFFICULTY == (int)GameManager.DIFFICULTY.HARD)
@@ -1325,13 +1323,7 @@ public class EntirePlane : MonoBehaviour
                 }
         }
 
-        //Vector3 angle2 = new Vector3(0f, 0f, 0f);
         transform.eulerAngles = Vector3.Lerp(angle1, angle2, fractionOfJourney);
-
-        //Vector3 targetPosition = new Vector3(ball.GetGameObject().transform.position.x,
-        //                        ball.GetGameObject().transform.position.y,
-        //                        ball.GetGameObject().transform.position.z);
-        //transform.LookAt(targetPosition, Vector3.forward);
 
         // Check if moving camera to initial point is done
         if (transform.position == cameraEndPositionAerial)

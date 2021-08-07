@@ -26,6 +26,8 @@ public class MainMenu : MonoBehaviour
 
     Sprite toggleOnSprite;
 
+    Sprite difficultyBackgroundSelected, difficultyBackgroundDeselected;
+
     bool firstDifficultyClick;
 
     private GameObject backgroundBlue;
@@ -78,6 +80,8 @@ public class MainMenu : MonoBehaviour
         musicEnabled = (PlayerPrefs.GetInt("MusicEnabled", 1) == 1);
         toggleOnSprite = Resources.Load<Sprite>("Images/Toggle_On");
         toggleOffSprite = Resources.Load<Sprite>("Images/Toggle_Off");
+        difficultyBackgroundSelected = Resources.Load<Sprite>("Images/DifficultyBackgroundSelected");
+        difficultyBackgroundDeselected = Resources.Load<Sprite>("Images/DifficultyBackgroundDeselected");
         soundEffectsToggleButton = GameObject.FindWithTag("ToggleSoundEffects");
         musicToggleButton = GameObject.FindWithTag("ToggleMusic");
         optionsMenu.SetActive(false);
@@ -375,16 +379,12 @@ public class MainMenu : MonoBehaviour
 
     private void SelectDifficultyButton(Button selected)
     {
-        ColorBlock colorBlock = selected.colors;
-        colorBlock.normalColor = new Color(50f / 255f, 220f / 255f, 50f / 255f);
-        selected.colors = colorBlock;
+        selected.GetComponent<Image>().sprite = difficultyBackgroundSelected;
     }
 
     private void DeselectDifficultyButton(Button deselected)
     {
-        ColorBlock colorBlock = deselected.colors;
-        colorBlock.normalColor = new Color(1f, 1f, 1f);
-        deselected.colors = colorBlock;
+        deselected.GetComponent<Image>().sprite = difficultyBackgroundDeselected;
     }
 
     public void TutorialMenuToggle()

@@ -164,7 +164,6 @@ public class SwipeDetector : MonoBehaviour
      */
     private void OnSwipeUp()
     {
-        Debug.Log("Swipe UP");
         upSwipe = true;
         timeOfSwipe = Time.time;
 
@@ -179,7 +178,6 @@ public class SwipeDetector : MonoBehaviour
      */
     private void OnSwipeDown()
     {
-        Debug.Log("Swipe DOWN");
     }
 
     /**
@@ -187,7 +185,6 @@ public class SwipeDetector : MonoBehaviour
      */
     private void OnSwipeLeft()
     {
-        Debug.Log("Swipe LEFT");
         leftSwipe = true;
         timeOfSwipe = Time.time;
 
@@ -202,7 +199,6 @@ public class SwipeDetector : MonoBehaviour
      */
     private void OnSwipeRight()
     {
-        Debug.Log("Swipe RIGHT");
         rightSwipe = true;
         timeOfSwipe = Time.time;
 
