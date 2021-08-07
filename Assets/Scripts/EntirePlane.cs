@@ -355,14 +355,13 @@ public class EntirePlane : MonoBehaviour
 
             pointScoreUI = GameObject.Find("PointScoreUI");
             pointsText = pointScoreUI.GetComponentInChildren<Text>();
-            if (GameManager.GetCurrentNumPoints().ToString().Length <= 7)
+            if (GameManager.GetCurrentNumPoints().ToString().Length <= 9)
             {
-                pointsText.text = GameManager.GetCurrentNumPoints().ToString() + " pts";
+                pointsText.text = string.Format("{0:#,0}", GameManager.GetCurrentNumPoints()) + " pts";
             }
             else
             {
-                pointsText.text = "1000000 pts";
-                Debug.Log(pointsText.text.Length);
+                pointsText.text = "000,000,000 pts";
             }
 
             livesRemainingUI = GameObject.Find("LivesRemainingUI");
@@ -392,8 +391,8 @@ public class EntirePlane : MonoBehaviour
 
         numberPlatformsX = GameManager.GetNumXPlatforms();
         numberPlatformsZ = GameManager.GetNumZPlatforms();
-        PLATFORM_GRID_X_DISTANCE = numberPlatformsX + 0.7f; //TODO replace with X Dimension Value of platform
-        PLATFORM_GRID_Z_DISTANCE = numberPlatformsZ + 0.7f; //TODO replace with Z Dimension Value of platform
+        PLATFORM_GRID_X_DISTANCE = numberPlatformsX + 0.7f;
+        PLATFORM_GRID_Z_DISTANCE = numberPlatformsZ + 0.7f;
         ballOnNewPlatform = true;
 
         // Populate the Level Info
@@ -509,12 +508,12 @@ public class EntirePlane : MonoBehaviour
      */
     private void ProperBounce()
     {
-        if (GameManager.GetMode() == GameManager.Mode.gameplay)
+        if (GameManager.GAME_DIFFICULTY == (int)GameManager.DIFFICULTY.MEDIUM
+            && GameManager.GetMode() == GameManager.Mode.gameplay
+            && ballWillFallOffEdge
+            && ball.GetGameObject().transform.position.y <= 0f)
         {
-            if (ballWillFallOffEdge)
-            {
-                BallMadeWrongMove();
-            }
+            BallMadeWrongMove();
         }
 
         if (!firstBounceYet && lastYVelocity < 0 && ball.GetRigidbody().velocity.y > 0)
@@ -533,6 +532,13 @@ public class EntirePlane : MonoBehaviour
             if (GameManager.GetMode() == GameManager.Mode.gameplay)
             {
                 audioManager.Play("Pattern_Single_Note", 1f + ((ballMovingAlongPatternIndex - 1) * 0.1f));
+
+                // Handle Incorrect move if ball is going on a fake platform
+                if (GameManager.GAME_DIFFICULTY == (int)GameManager.DIFFICULTY.HARD && ballWillFallOffEdge)
+                {
+                    BallMadeWrongMove();
+                }
+
                 // Check if there are bounces remaining on this platform
                 if (ball.GetWhichPlatfromOnX() >= 0 && ball.GetWhichPlatfromOnX() < numberPlatformsX 
                     && ball.GetWhichPlatfromOnZ() >= 0 && ball.GetWhichPlatfromOnZ() < numberPlatformsZ)
@@ -695,13 +701,13 @@ public class EntirePlane : MonoBehaviour
                         GameManager.TurnMove();
                     }
 
-                    if (GameManager.GetCurrentNumPoints().ToString().Length <= 7)
+                    if (GameManager.GetCurrentNumPoints().ToString().Length <= 9)
                     {
-                        pointsText.text = GameManager.GetCurrentNumPoints().ToString() + " pts";
+                        pointsText.text = string.Format("{0:#,0}", GameManager.GetCurrentNumPoints()) + " pts";
                     }
                     else
                     {
-                        pointsText.text = "1000000 pts";
+                        pointsText.text = "000,000,000 pts";
                     }
 
                     if (ballWillLandOnFinalPlatform)
@@ -1135,7 +1141,6 @@ public class EntirePlane : MonoBehaviour
 
             //if (GUI.Button(new Rect(300, 1000, 100, 100), "FORWARD"))
             //{
-            //    Debug.Log("Clicked");
             //    if (!changingPlatforms)
             //    {
             //        changePlatformsOnNextBounce = true;
@@ -1146,7 +1151,6 @@ public class EntirePlane : MonoBehaviour
 
             //if (GUI.Button(new Rect(500, 1000, 100, 100), "RIGHT"))
             //{
-            //    Debug.Log("Clicked");
             //    if (!changingPlatforms)
             //    {
             //        changePlatformsOnNextBounce = true;
@@ -1156,7 +1160,6 @@ public class EntirePlane : MonoBehaviour
 
             //if (GUI.Button(new Rect(100, 1000, 100, 100), "LEFT"))
             //{
-            //    Debug.Log("Clicked");
             //    if (!changingPlatforms)
             //    {
             //        changePlatformsOnNextBounce = true;
@@ -1181,7 +1184,11 @@ public class EntirePlane : MonoBehaviour
             if (currentX > numberPlatformsX-1 || currentX < 0 || currentZ > numberPlatformsZ || currentZ < 0)
             {
                 ballWillFallOffEdge = true;
-                Debug.Log("Ball falling off edge");
+                if (GameManager.GAME_DIFFICULTY == (int)GameManager.DIFFICULTY.HARD)
+                {
+                    // Ball is falling off edge and landing on wrong (fake) platform
+                    ballWillLandOnWrongPlatform = true;
+                }
                 return;
             }
 
@@ -1256,6 +1263,7 @@ public class EntirePlane : MonoBehaviour
                 platforms[ball.GetPreviousPlatformX()][ball.GetPreviousPlatformZ()].SetBallOnPlatform(false, ballWillLandOnWrongPlatform);
             }
         }
+        ballWillLandOnWrongPlatform = false;
     }
 
     /**
@@ -1263,7 +1271,7 @@ public class EntirePlane : MonoBehaviour
      */
     public void PutCamInAerialView()
     {
-        mainCamera.transform.position = new Vector3((numberPlatformsX /2f) - 0.5f, PLATFORM_GRID_X_DISTANCE + (0.6f*numberPlatformsX) , numberPlatformsZ / 2f - 0.5f);
+        mainCamera.transform.position = new Vector3((numberPlatformsX /2f) - 0.5f, PLATFORM_GRID_X_DISTANCE + (0.8f*numberPlatformsX) , numberPlatformsZ / 2f - 0.5f);
         mainCamera.transform.eulerAngles = new Vector3(90f, 0f, 0f);
     }
 
@@ -1367,8 +1375,8 @@ public class EntirePlane : MonoBehaviour
         }
 
 
-            // Handle Lives
-            GameManager.SubtractNumLivesRemaining();
+        // Handle Lives
+        GameManager.SubtractNumLivesRemaining();
         if (GameManager.GetNumLivesRemaining() != 1)
         {
             livesText.text = GameManager.GetNumLivesRemaining() + " Lives";
@@ -1387,16 +1395,32 @@ public class EntirePlane : MonoBehaviour
             // Show Level Fail UI
             failMenuLevelNum.GetComponent<Text>().text = "Level Number: " + GameManager.GetCurrentLevelNumber();
             failMenuGridSize.GetComponent<Text>().text = "Grid Size: " + numberPlatformsX + "x" + numberPlatformsZ;
-            failMenuPoints.GetComponent<Text>().text = "Points: " + GameManager.GetCurrentNumPoints() + "pts";
+            if (GameManager.GetCurrentNumPoints().ToString().Length <= 9)
+            {
+                failMenuPoints.GetComponent<Text>().text = "Points: " + string.Format("{0:#,0}", GameManager.GetCurrentNumPoints()) + " pts";
+            }
+            else
+            {
+                failMenuPoints.GetComponent<Text>().text = "Points: 000,000,000 pts";
+            }
             levelFailUI.SetActive(true);
         }
         else
         {
+            // Play fail sound
+            audioManager.Play("Level_Fail_Sound", 1f);
             // Play Music
             audioManager.Play("Menu_Music", 1f);
 
             // Show Game Fail UI
-            gameFailScoreText.text = "Your Score: " + GameManager.GetCurrentNumPoints();
+            if (GameManager.GetCurrentNumPoints().ToString().Length <= 9)
+            {
+                gameFailScoreText.text = "Game Score: " + string.Format("{0:#,0}", GameManager.GetCurrentNumPoints()) + " pts";
+            }
+            else
+            {
+                gameFailScoreText.text = "Game Score: " + "000,000,000 pts";
+            }
             if (GameManager.GAME_DIFFICULTY == (int)GameManager.DIFFICULTY.MEDIUM)
             {
                 difficultyTitleText.text = "Normal Mode HighScores";
@@ -1448,7 +1472,7 @@ public class EntirePlane : MonoBehaviour
             }
         }
 
-
+        ballWillFallOffEdge = false;
         GameManager.SetFailedPrevAttempt(true);
         GameManager.SetMode(GameManager.Mode.failed_level);
         mySwipeDetector.SetSwipeDetectorActivated(false);
@@ -1556,7 +1580,14 @@ public class EntirePlane : MonoBehaviour
         // Show the Level Complete Text
         completeMenuLevelNum.GetComponent<Text>().text = "Level Number: " + GameManager.GetCurrentLevelNumber();
         completeMenuGridSize.GetComponent<Text>().text = "Grid Size: " + numberPlatformsX + "x" + numberPlatformsZ;
-        completeMenuPoints.GetComponent<Text>().text = "Points: " + GameManager.GetCurrentNumPoints() + "pts";
+        if (GameManager.GetCurrentNumPoints().ToString().Length <= 9)
+        {
+            completeMenuPoints.GetComponent<Text>().text = "Points: " + string.Format("{0:#,0}", GameManager.GetCurrentNumPoints()) + " pts";
+        }
+        else
+        {
+            completeMenuPoints.GetComponent<Text>().text = "Points: " + "000,000,000 pts";
+        }
         bouncesLeftUI.SetActive(false);
         levelCompleteUI.SetActive(true);
         GameManager.SetMode(GameManager.Mode.completed_level);

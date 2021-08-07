@@ -51,7 +51,7 @@ public class MainMenu : MonoBehaviour
 
     private bool musicEnabled;
 
-    private GameObject patternVid, forwardVid, rightVid, leftVid, keepInMindImage;
+    private GameObject patternVid, forwardVid, rightVid, leftVid, keepInMindImage, hardModeImage;
     private GameObject slideNumText;
     private GameObject tutorialTextInstruction;
     private int currentTutorialSlideNum;
@@ -89,7 +89,7 @@ public class MainMenu : MonoBehaviour
         // Set High Scores Game Objects
         for (int i = 0; i < 3; i++)
         {
-            hsNormalPlayersText[i] = GameObject.Find("/Canvas/HighScoreMenu/NormalHighScores/Players/Player" + (i + 1) + "TextNormal");
+            hsNormalPlayersText[i] = GameObject.Find("Player" + (i + 1) + "TextNormal");
         }
         for (int i = 0; i < 3; i++)
         {
@@ -140,12 +140,14 @@ public class MainMenu : MonoBehaviour
         rightVid = GameObject.Find("Tutorial Go Right Video");
         leftVid = GameObject.Find("Tutorial Go Left Video");
         keepInMindImage = GameObject.Find("Image Keep in Mind");
+        hardModeImage = GameObject.Find("Image Hard Mode");
 
         patternVid.SetActive(false);
         forwardVid.SetActive(false);
         rightVid.SetActive(false);
         leftVid.SetActive(false);
         keepInMindImage.SetActive(false);
+        hardModeImage.SetActive(false);
 
         tutorialTextInstruction = GameObject.Find("Text Instruction");
         tutorialTextInstruction.GetComponent<TextMeshProUGUI>().text = "";
@@ -234,9 +236,26 @@ public class MainMenu : MonoBehaviour
             for (int i = 0; i < 3; i++)
             {
                 hsNormalPlayersText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetString((int)GameManager.DIFFICULTY.MEDIUM + "highscoreName" + (i + 1), "***");
-                hsNormalScoresText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetInt((int)GameManager.DIFFICULTY.MEDIUM + "highscore" + (i + 1), 0).ToString();
+                int currentNormScore = PlayerPrefs.GetInt((int)GameManager.DIFFICULTY.MEDIUM + "highscore" + (i + 1), 0);
+                if (currentNormScore.ToString().Length <= 9)
+                {
+                    hsNormalScoresText[i].GetComponent<TextMeshProUGUI>().text = string.Format("{0:#,0}", currentNormScore);
+                }
+                else
+                {
+                    hsNormalScoresText[i].GetComponent<TextMeshProUGUI>().text = "000,000,000";
+                }
+
                 hsHardPlayersText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetString((int)GameManager.DIFFICULTY.HARD + "highscoreName" + (i + 1), "***");
-                hsHardScoresText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetInt((int)GameManager.DIFFICULTY.HARD + "highscore" + (i + 1), 0).ToString();
+                int currentHardScore = PlayerPrefs.GetInt((int)GameManager.DIFFICULTY.HARD + "highscore" + (i + 1), 0);
+                if (currentHardScore.ToString().Length <= 9)
+                {
+                    hsHardScoresText[i].GetComponent<TextMeshProUGUI>().text = string.Format("{0:#,0}", currentHardScore);
+                }
+                else
+                {
+                    hsHardScoresText[i].GetComponent<TextMeshProUGUI>().text = "000,000,000";
+                }
             }
         }
         else
@@ -376,7 +395,7 @@ public class MainMenu : MonoBehaviour
 
             currentTutorialSlideNum = 1;
             LoadSlide(currentTutorialSlideNum, -1);
-            slideNumText.GetComponent<TextMeshProUGUI>().text = "1/5";
+            slideNumText.GetComponent<TextMeshProUGUI>().text = "1/6";
         }
         else
         {
@@ -389,6 +408,7 @@ public class MainMenu : MonoBehaviour
             rightVid.SetActive(false);
             leftVid.SetActive(false);
             keepInMindImage.SetActive(false);
+            hardModeImage.SetActive(false);
 
             titleFolder.SetActive(true);
         }
@@ -426,6 +446,11 @@ public class MainMenu : MonoBehaviour
                 case (5):
                     {
                         keepInMindImage.SetActive(false);
+                        break;
+                    }
+                case (6):
+                    {
+                        hardModeImage.SetActive(false);
                         break;
                     }
                 default:
@@ -471,6 +496,12 @@ public class MainMenu : MonoBehaviour
                     tutorialTextInstruction.GetComponent<TextMeshProUGUI>().text = "Keep in Mind How Many Lives Left and How Many Bounces Remain Before You Must Switch Platforms";
                     break;
                 }
+            case (6):
+                {
+                    hardModeImage.SetActive(true);
+                    tutorialTextInstruction.GetComponent<TextMeshProUGUI>().text = "If Playing HARD MODE, ignore the RED (Fake) Platforms";
+                    break;
+                }
             default:
                 Debug.Log("Error with loading slides");
                 break;
@@ -483,21 +514,21 @@ public class MainMenu : MonoBehaviour
         currentTutorialSlideNum--;
         if (currentTutorialSlideNum < 1)
         {
-            currentTutorialSlideNum = 5;
+            currentTutorialSlideNum = 6;
         }
         LoadSlide(currentTutorialSlideNum, prevSlideNum);
-        slideNumText.GetComponent<TextMeshProUGUI>().text = currentTutorialSlideNum + "/5";
+        slideNumText.GetComponent<TextMeshProUGUI>().text = currentTutorialSlideNum + "/6";
     }
 
     public void NextButtonClicked()
     {
         int prevSlideNum = currentTutorialSlideNum;
         currentTutorialSlideNum++;
-        if (currentTutorialSlideNum > 5)
+        if (currentTutorialSlideNum > 6)
         {
             currentTutorialSlideNum = 1;
         }
         LoadSlide(currentTutorialSlideNum, prevSlideNum);
-        slideNumText.GetComponent<TextMeshProUGUI>().text = currentTutorialSlideNum + "/5";
+        slideNumText.GetComponent<TextMeshProUGUI>().text = currentTutorialSlideNum + "/6";
     }
 }
