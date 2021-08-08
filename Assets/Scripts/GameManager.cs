@@ -409,7 +409,7 @@ public static class GameManager
         int newHighscoreSet = -1;
         uint score = GetCurrentNumPoints();
         int difficulty = GAME_DIFFICULTY;
-        if (score > 0 && score <= 1000000)
+        if (score > 0 && score <= 999999999)
         {
             uint[] currentLeaderboard = new uint[3];
             for (int i=0;i<3;i++)

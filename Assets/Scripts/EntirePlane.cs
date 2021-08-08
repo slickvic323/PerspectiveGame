@@ -1450,7 +1450,7 @@ public class EntirePlane : MonoBehaviour
                         // Grab from high score data
                         hsDataPlayersText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetString(((int)GameManager.GAME_DIFFICULTY).ToString() + "highscoreName" + (i + 1), "***");
                     }
-                    hsDataScoresText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetInt(((int)GameManager.GAME_DIFFICULTY).ToString() + "highscore" + (i + 1), 0).ToString();
+                    hsDataScoresText[i].GetComponent<TextMeshProUGUI>().text = string.Format("{0:#,0}", PlayerPrefs.GetInt(((int)GameManager.GAME_DIFFICULTY).ToString() + "highscore" + (i + 1), 0));
                 }
             }
             else
@@ -1459,7 +1459,7 @@ public class EntirePlane : MonoBehaviour
                 for (int i = 0; i < 3; i++)
                 {
                     hsDataPlayersText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetString(((int)GameManager.GAME_DIFFICULTY).ToString() + "highscoreName" + (i + 1), "***");
-                    hsDataScoresText[i].GetComponent<TextMeshProUGUI>().text = PlayerPrefs.GetInt(((int)GameManager.GAME_DIFFICULTY).ToString() + "highscore" + (i + 1), 0).ToString();
+                    hsDataScoresText[i].GetComponent<TextMeshProUGUI>().text = string.Format("{0:#,0}", PlayerPrefs.GetInt(((int)GameManager.GAME_DIFFICULTY).ToString() + "highscore" + (i + 1), 0).ToString());
                 }
             }
         }
